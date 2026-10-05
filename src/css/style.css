@@ -1,0 +1,227 @@
+/* Palette sampled from the club logo. */
+:root {
+  --navy: #223242;
+  --rust: #96512d;
+  --gold: #c38f45;
+  --olive: #626142;
+  --cream: #eadcc6;
+  --paper: #faf6ee;
+  --text: #1e2a36;
+  --radius: 10px;
+  --max-width: 60rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--rust);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--navy);
+  line-height: 1.2;
+}
+
+.site-header {
+  background: var(--navy);
+  color: var(--cream);
+  border-bottom: 6px solid var(--gold);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.brand img {
+  width: 64px;
+  height: 64px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+  list-style: none;
+}
+
+.tabs a {
+  display: block;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: var(--cream);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tabs a:hover {
+  background: var(--olive);
+}
+
+.tabs a[aria-current='page'] {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.site-footer {
+  background: var(--navy);
+  color: var(--cream);
+  text-align: center;
+  padding: 1rem;
+}
+
+.site-footer a {
+  color: var(--cream);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero img {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.lead {
+  font-size: 1.2rem;
+}
+
+.card {
+  background: #fff;
+  border-left: 6px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 0.5rem 1.25rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.5rem;
+}
+
+.grid .card {
+  margin: 0;
+}
+
+.button {
+  display: inline-block;
+  margin: 0.25rem 0.5rem 0.25rem 0;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  background: var(--rust);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.button.secondary {
+  background: var(--navy);
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--cream);
+}
+
+.post-date,
+.post-list time {
+  color: var(--olive);
+}
+
+/* Marks content still to be written; remove the class once real content is in. */
+.placeholder {
+  background: #fff4d6;
+  border: 2px dashed var(--gold);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .brand {
+    font-size: 1.1rem;
+  }
+
+  .brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Tabs become a 3x2 grid of buttons so all six fit without a menu toggle. */
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .tabs a {
+    border-radius: var(--radius);
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero img {
+    width: 200px;
+  }
+}

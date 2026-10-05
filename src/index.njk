@@ -1,0 +1,29 @@
+---
+title: Home
+---
+<section class="hero">
+  <img src="/img/logo-520.webp" alt="Asheville Board Game Club logo" width="300" height="300" />
+  <div>
+    <h1>Asheville Board Game Club</h1>
+    <p class="lead">Board gamers in Asheville, NC, meeting to play every week.</p>
+    <p class="placeholder">Placeholder: add a short welcome message here.</p>
+    <p>
+      <a class="button" href="/meetups/">Come play with us</a>
+      <a class="button secondary" href="{{ site.discordUrl }}">Join our Discord</a>
+    </p>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Next meetup</h2>
+  <p><strong>Every Wednesday, 5:30&nbsp;PM to 10:00&nbsp;PM</strong><br />Well Played Board Game Café</p>
+  <p><a href="/meetups/">Meetup details &rarr;</a></p>
+</section>
+
+{%- set latest = collections.news | reverse | first %}
+{%- if latest %}
+<section class="card">
+  <h2>Latest news</h2>
+  <p><a href="{{ latest.url }}">{{ latest.data.title }}</a> &middot; {{ latest.date | readableDate }}</p>
+</section>
+{%- endif %}
