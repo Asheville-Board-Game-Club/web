@@ -2,5 +2,7 @@
 title: Pictures
 permalink: /pictures/
 ---
-<h1>Pictures</h1>
+
+# Pictures
+
 <p class="placeholder">Placeholder: photos from club meetups will go here.</p>

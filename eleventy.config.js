@@ -8,6 +8,9 @@ export default function (eleventyConfig) {
   );
 
   return {
+    // Nunjucks everywhere so .md and .html pages share the same template syntax as the layouts.
+    markdownTemplateEngine: 'njk',
+    htmlTemplateEngine: 'njk',
     dir: { input: 'src', includes: '_includes', data: '_data' },
   };
 }

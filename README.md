@@ -12,7 +12,7 @@ yarn checkall   # lint, format check, and build
 
 ## Content
 
-- Pages live in `src/` (`*.njk`). Shared header/nav/footer: `src/_includes/layouts/base.njk`.
+- Pages live in `src/` as Markdown (`*.md`); Nunjucks tags (`{{ }}`, `{% %}`) work inside them. Shared header/nav/footer: `src/_includes/layouts/base.njk`.
 - Nav tabs and social links: `src/_data/site.js`.
 - News posts: add `src/news/posts/YYYY-MM-DD-slug.md` with a `title` in the front matter.
 - Anything with `class="placeholder"` is content still to be written.
