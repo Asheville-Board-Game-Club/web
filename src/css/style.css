@@ -257,3 +257,26 @@ main {
   margin-right: 0.3rem;
   vertical-align: -0.05em;
 }
+
+.upcoming {
+  list-style: none;
+  padding: 0;
+}
+
+.upcoming li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cream);
+}
+
+.upcoming li:last-child {
+  border-bottom: 0;
+}
+
+.upcoming-when {
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.upcoming-time {
+  color: var(--olive);
+}

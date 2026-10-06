@@ -10,7 +10,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addWatchTarget('src/ts/');
   eleventyConfig.on('eleventy.before', async () => {
     await esbuild.build({
-      entryPoints: { meetups: 'src/ts/meetups-page.ts' },
+      entryPoints: { home: 'src/ts/home-page.ts', meetups: 'src/ts/meetups-page.ts' },
       bundle: true,
       format: 'esm',
       target: 'es2020',

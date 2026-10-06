@@ -1,0 +1,9 @@
+#!/bin/sh
+# AIDEV-NOTE: Enabled per clone with `git config core.hooksPath .githooks` (see README).
+# Validates the working-tree file, so a partially staged meetups.json is checked as it is on disk.
+if git diff --cached --name-only | grep -qx 'src/data/meetups.json'; then
+  yarn validate-data || {
+    echo 'pre-commit: src/data/meetups.json is invalid; commit aborted.' >&2
+    exit 1
+  }
+fi

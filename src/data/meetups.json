@@ -1,7 +1,7 @@
 [
   {
     "id": "weekly",
-    "title": "Weekly in-person meetup",
+    "title": "Weekly meetup",
     "recurring": true,
     "frequency": "weekly",
     "day-of-week": "Wednesday",

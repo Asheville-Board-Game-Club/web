@@ -4,22 +4,10 @@ title: Home
 
 <section class="card">
 
-## Next meetup
+## Upcoming meetups
 
-**Every Wednesday, 5:30&nbsp;PM to 10:00&nbsp;PM**<br />
-Well Played Board Game Café
-
-[Meetup details &rarr;](/meetups/)
-
-</section>
-
-{% set latest = collections.news | reverse | first %}
-{% if latest %}
-<section class="card">
-
-## Latest news
-
-[{{ latest.data.title }}]({{ latest.url }}) &middot; {{ latest.date | readableDate }}
+<div id="upcoming-meetups"><p>Loading the meetup schedule…</p></div>
+<noscript><p>The meetup schedule needs JavaScript.</p></noscript>
+<script type="module" src="/js/home.js"></script>
 
 </section>
-{% endif %}

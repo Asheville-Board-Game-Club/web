@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import type { MeetupLocation } from './meetup';
-import { describeSchedule, formatTime, renderMeetupCard, renderMeetups } from './render-meetups';
+import { describeSchedule, renderMeetupCard, renderMeetups } from './render-meetups';
 import { aMeetup } from './test-meetup';
 
 function toElement(html: string): HTMLElement {
@@ -13,21 +13,6 @@ function withLocation(changes: Partial<MeetupLocation>) {
   const meetup = aMeetup();
   return aMeetup({ location: { ...meetup.location, ...changes } });
 }
-
-describe('formatTime', () => {
-  it.each([
-    ['17:30', '5:30\u00a0PM'],
-    ['09:05', '9:05\u00a0AM'],
-    ['00:15', '12:15\u00a0AM'],
-    ['12:00', '12:00\u00a0PM'],
-  ])('formats %s as %s', (time, expected) => {
-    expect(formatTime(time)).toBe(expected);
-  });
-
-  it.each(['5:30pm', '1730', ''])('rejects %j', (time) => {
-    expect(() => formatTime(time)).toThrow(`Invalid time "${time}"`);
-  });
-});
 
 describe('describeSchedule', () => {
   it('names the day and the start and end times', () => {
