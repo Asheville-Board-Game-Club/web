@@ -250,3 +250,10 @@ main {
 .map figcaption a {
   color: inherit;
 }
+
+.social-icon {
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.3rem;
+  vertical-align: -0.05em;
+}

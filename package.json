@@ -6,15 +6,24 @@
   "scripts": {
     "start": "eleventy --serve",
     "build": "eleventy",
+    "test": "jest",
+    "typecheck": "tsc",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "checkall": "eslint . && prettier --check . && eleventy"
+    "checkall": "eslint . && prettier --check . && tsc && jest && eleventy"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
     "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "esbuild": "^0.28.2",
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
-    "prettier": "^3.9.9"
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "prettier": "^3.9.9",
+    "ts-jest": "^29.4.14",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.71.1"
   }
 }

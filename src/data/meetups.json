@@ -1,0 +1,34 @@
+[
+  {
+    "id": "weekly",
+    "title": "Weekly in-person meetup",
+    "recurring": true,
+    "frequency": "weekly",
+    "day-of-week": "Wednesday",
+    "start-time": "17:30",
+    "end-time": "22:00",
+    "location": {
+      "name": "Well Played Board Game Café",
+      "website": "https://wellplayedasheville.com/",
+      "street": "162 Coxe Ave",
+      "suite": "Suite 101",
+      "city": "Asheville",
+      "state": "NC",
+      "zip": "28801",
+      "map-url": "https://www.google.com/maps/search/?api=1&query=Well+Played+Board+Game+Cafe+162+Coxe+Ave+Asheville+NC+28801",
+      "map-image": {
+        "src": "/img/map-well-played.webp",
+        "alt": "Map showing Well Played Board Game Café on Coxe Ave in South Slope. Opens Google Maps.",
+        "attribution": "OpenStreetMap",
+        "attribution-url": "https://www.openstreetmap.org/copyright"
+      }
+    },
+    "notes": [
+      "Well Played generously allows meetup attendees to use their game library for free. You do not need a pass.",
+      "We are almost always in the \"cafe portion\" (turn left when you walk in).",
+      "There should be a roll of name tags on a table. Please make and wear a name tag. It helps everyone.",
+      "We have a dedicated spot for games that belong to the club members that is separate from the Well Played library, and an area reserved for us to mingle and play near each other.",
+      "Official start time is 5:30 PM but there is usually someone there by 5:00."
+    ]
+  }
+]

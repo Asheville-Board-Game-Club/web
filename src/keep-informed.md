@@ -8,16 +8,21 @@ permalink: /keep-informed/
 <div class="grid">
 <section class="card">
 
-## Discord
+## {% icon "discord" %} Discord
 
-Discord is our official social media provider. It's the best place to find out what's happening and to chat with other members.
+Discord is our official social media provider. It's the best place to:
 
-<a class="button" href="{{ site.discordUrl }}">Join our Discord</a>
+- chat with other members
+- pre-select games for meetups
+- buy & sell
+- discuss the hobby
+
+<a class="button secondary" href="{{ site.discordUrl }}">Join our Discord</a>
 
 </section>
 <section class="card">
 
-## Facebook
+## {% icon "facebook" %} Facebook
 
 Follow us on Facebook for announcements.
 
@@ -26,7 +31,7 @@ Follow us on Facebook for announcements.
 </section>
 <section class="card">
 
-## Instagram
+## {% icon "instagram" %} Instagram
 
 Follow us on Instagram.
 
