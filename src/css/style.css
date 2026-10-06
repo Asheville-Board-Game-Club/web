@@ -159,25 +159,6 @@ main {
   background: var(--navy);
 }
 
-.post-list {
-  list-style: none;
-  padding: 0;
-}
-
-.post-list li {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--cream);
-}
-
-.post-date,
-.post-list time {
-  color: var(--olive);
-}
-
 /* Marks content still to be written; remove the class once real content is in. */
 .placeholder {
   background: #fff4d6;
@@ -197,10 +178,10 @@ main {
     height: 48px;
   }
 
-  /* Tabs become a 3x2 grid of buttons so all six fit without a menu toggle. */
+  /* Tabs become a 2x2 grid of buttons so all four fit without a menu toggle. */
   .tabs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.25rem;
     padding-bottom: 0.5rem;
   }

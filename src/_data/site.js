@@ -6,7 +6,6 @@ export default {
   instagramUrl: 'https://www.instagram.com/avl.boardgames/',
   nav: [
     { label: 'Home', url: '/' },
-    { label: 'News', url: '/news/' },
     { label: 'Meetups', url: '/meetups/' },
     { label: 'Keep Informed', url: '/keep-informed/' },
     { label: 'About', url: '/about/' },

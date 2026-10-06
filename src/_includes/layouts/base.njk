@@ -17,7 +17,7 @@
       <nav aria-label="Main">
         <ul class="tabs">
           {%- for item in site.nav %}
-          {#- News posts live under /news/, so the News tab stays highlighted while reading one. #}
+          {#- Pages under a tab's URL keep that tab highlighted. #}
           {%- set isCurrent = (item.url == '/' and page.url == '/') or (item.url != '/' and page.url.startsWith(item.url)) %}
           <li><a href="{{ item.url }}"{% if isCurrent %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
           {%- endfor %}

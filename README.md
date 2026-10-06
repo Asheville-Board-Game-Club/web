@@ -22,7 +22,6 @@ git config core.hooksPath .githooks
 
 - Pages live in `src/` as Markdown (`*.md`); Nunjucks tags (`{{ }}`, `{% %}`) work inside them. Shared header/nav/footer: `src/_includes/layouts/base.njk`.
 - Nav tabs and social links: `src/_data/site.js`.
-- News posts: add `src/news/posts/YYYY-MM-DD-slug.md` with a `title` in the front matter.
 - The Home page's upcoming meetups (next 30 days, Asheville time) and the Meetups page cards are rendered in the browser from `src/data/meetups.json` (served at `/data/meetups.json`).
   Browser code is TypeScript in `src/ts/`; esbuild bundles `home-page.ts` and `meetups-page.ts` to `/js/home.js` and `/js/meetups.js` during the Eleventy build.
 - Social icons in `src/_includes/icons/` are from [Simple Icons](https://simpleicons.org/) (CC0), recolored with each brand's color.

@@ -23,10 +23,6 @@ export default function (eleventyConfig) {
   // Inline SVG, trimmed so an icon can sit inside a single Markdown line such as a heading.
   eleventyConfig.addShortcode('icon', (name) => readFileSync(`src/_includes/icons/${name}.svg`, 'utf8').trim());
 
-  eleventyConfig.addFilter('readableDate', (date) =>
-    new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }),
-  );
-
   return {
     // Nunjucks everywhere so .md and .html pages share the same template syntax as the layouts.
     markdownTemplateEngine: 'njk',
