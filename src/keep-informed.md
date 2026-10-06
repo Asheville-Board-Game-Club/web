@@ -24,4 +24,13 @@ Follow us on Facebook for announcements.
 <a class="button secondary" href="{{ site.facebookUrl }}">Visit our Facebook page</a>
 
 </section>
+<section class="card">
+
+## Instagram
+
+Follow us on Instagram.
+
+<a class="button secondary" href="{{ site.instagramUrl }}">Visit our Instagram page</a>
+
+</section>
 </div>

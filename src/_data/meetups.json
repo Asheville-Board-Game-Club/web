@@ -1,0 +1,16 @@
+[
+  {
+    "id": "weekly",
+    "recurring": true,
+    "frequency": "weekly",
+    "day-of-week": "Wednesday",
+    "location": {
+      "name": "Well Played Board Game Cafe",
+      "address": "",
+      "map-url": ""
+    },
+    "start-time": "5:30pm",
+    "end-time": "10:00pm",
+    "notes": []
+  }
+]
