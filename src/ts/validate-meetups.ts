@@ -1,5 +1,6 @@
-import { DAYS_OF_WEEK } from './calendar-date';
+import { DAYS_OF_WEEK, dayOfWeek } from './calendar-date';
 import type { Meetup } from './meetup';
+import { specialEventId } from './special-event-id';
 import { minutesSinceMidnight } from './time-of-day';
 
 // AIDEV-NOTE: Run against src/data/meetups.json by meetups-data.test.ts, which `yarn build` runs before Eleventy,
@@ -19,6 +20,15 @@ const time = rule((value) => typeof value === 'string' && /^([01]?\d|2[0-3]):[0-
 const boolean = rule((value) => typeof value === 'boolean', 'must be true or false');
 // The id becomes an HTML id and a link anchor (/meetups/#id).
 const id = rule((value) => typeof value === 'string' && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value), 'must be lowercase letters, digits, and dashes');
+
+// Round-tripping rejects other formats, and dates like 2026-02-30 that Date would roll over to March.
+function isRealDate(value: string): boolean {
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+const calendarDate = rule((value) => typeof value === 'string' && isRealDate(value), 'must be a real date like "2026-10-28"');
+const hexColor = rule((value) => typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value), 'must be a hex color like "#f4e1c1"');
 
 function oneOf(allowed: readonly string[]): Check {
   return rule((value) => typeof value === 'string' && allowed.includes(value), `must be one of: ${allowed.join(', ')}`);
@@ -52,6 +62,10 @@ function arrayOf(item: Check): Check {
     Array.isArray(value) ? value.flatMap((element, index) => item(element, `${path}[${index}]`)) : [`${path} must be a list`];
 }
 
+function nonEmpty(check: Check): Check {
+  return (value, path) => (Array.isArray(value) && value.length === 0 ? [`${path} must not be empty`] : check(value, path));
+}
+
 const mapImage = object({ src: sitePath, alt: text, attribution: text, 'attribution-url': webUrl });
 
 const location = object(
@@ -59,21 +73,30 @@ const location = object(
   { website: webUrl, suite: text, 'map-url': webUrl, 'map-image': mapImage },
 );
 
-const meetup = object({
-  id,
-  title: text,
-  recurring: boolean,
-  frequency: oneOf(['weekly']),
-  'day-of-week': oneOf(DAYS_OF_WEEK),
-  'start-time': time,
-  'end-time': time,
-  location,
-  notes: arrayOf(text),
-});
+const specialEvent = object(
+  { name: text, dates: nonEmpty(arrayOf(calendarDate)), description: text },
+  { image: object({ src: sitePath, alt: text }), 'background-color': hexColor, 'text-color': hexColor },
+);
+
+const meetup = object(
+  {
+    id,
+    title: text,
+    recurring: boolean,
+    frequency: oneOf(['weekly']),
+    'day-of-week': oneOf(DAYS_OF_WEEK),
+    'start-time': time,
+    'end-time': time,
+    location,
+    notes: arrayOf(text),
+  },
+  { 'special-events': arrayOf(specialEvent) },
+);
 
 function crossFieldProblems(meetups: Meetup[]): string[] {
   const problems: string[] = [];
   const seenIds = new Set<string>();
+  const seenEventIds = new Set<string>();
   meetups.forEach((entry, index) => {
     if (seenIds.has(entry.id)) {
       problems.push(`meetups[${index}].id "${entry.id}" is used by more than one meetup`);
@@ -82,6 +105,18 @@ function crossFieldProblems(meetups: Meetup[]): string[] {
     if (minutesSinceMidnight(entry['end-time']) <= minutesSinceMidnight(entry['start-time'])) {
       problems.push(`meetups[${index}].end-time must be after start-time (meetups can't run past midnight)`);
     }
+    entry['special-events']?.forEach((event, eventIndex) => {
+      const eventId = specialEventId(entry, event);
+      if (seenEventIds.has(eventId)) {
+        problems.push(`meetups[${index}].special-events[${eventIndex}].name gives the same link (#${eventId}) as another special event`);
+      }
+      seenEventIds.add(eventId);
+      event.dates
+        .filter((date) => dayOfWeek(date) !== entry['day-of-week'])
+        .forEach((date) => {
+          problems.push(`meetups[${index}].special-events[${eventIndex}].dates has ${date}, which is not a ${entry['day-of-week']}`);
+        });
+    });
   });
   return problems;
 }

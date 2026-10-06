@@ -20,6 +20,23 @@ export interface MeetupLocation {
   'map-image'?: MapImage;
 }
 
+export interface EventImage {
+  src: string;
+  alt: string;
+}
+
+export interface SpecialEvent {
+  name: string;
+  /** "YYYY-MM-DD"; each must fall on the meetup's day of the week. */
+  dates: string[];
+  description: string;
+  image?: EventImage;
+  /** "#rrggbb" */
+  'background-color'?: string;
+  /** "#rrggbb"; used for all of the event's text. */
+  'text-color'?: string;
+}
+
 export interface Meetup {
   id: string;
   title: string;
@@ -33,4 +50,5 @@ export interface Meetup {
   'end-time': string;
   location: MeetupLocation;
   notes: string[];
+  'special-events'?: SpecialEvent[];
 }

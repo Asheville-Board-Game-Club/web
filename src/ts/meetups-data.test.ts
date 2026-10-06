@@ -12,9 +12,9 @@ describe(DATA_FILE, () => {
     expect(validateMeetups(data)).toEqual([]);
   });
 
-  it('only uses map images that exist in the site', () => {
+  it('only uses images that exist in the site', () => {
     const missing = (data as Meetup[])
-      .map((meetup) => meetup.location['map-image']?.src)
+      .flatMap((meetup) => [meetup.location['map-image']?.src, ...(meetup['special-events'] ?? []).map((event) => event.image?.src)])
       .filter((src): src is string => src !== undefined && !existsSync(`src${src}`));
 
     expect(missing).toEqual([]);

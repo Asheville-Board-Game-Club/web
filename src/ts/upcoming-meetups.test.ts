@@ -1,6 +1,6 @@
 import type { LocalDateTime } from './asheville-clock';
-import { aMeetup } from './test-meetup';
-import { upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
+import { aMeetup, aSpecialEvent } from './test-meetup';
+import { remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
 
 const WEDNESDAY_NOON: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
 
@@ -60,5 +60,41 @@ describe('upcomingOccurrences', () => {
     const friday = aMeetup({ 'day-of-week': 'Friday' });
 
     expect(upcomingOccurrences([friday], WEDNESDAY_NOON, 2)).toEqual([]);
+  });
+
+  it('attaches the special events on each date, and none to other dates', () => {
+    const costumes = aSpecialEvent({ name: 'Costumes', dates: ['2026-10-14', '2026-10-28'] });
+    const auction = aSpecialEvent({ name: 'Auction', dates: ['2026-10-28'] });
+    const meetup = aMeetup({ 'special-events': [costumes, auction] });
+
+    const occurrences = upcomingOccurrences([meetup], WEDNESDAY_NOON, 22);
+
+    expect(occurrences.map(({ date, events }) => `${date} ${events.map((event) => event.name).join(',')}`)).toEqual([
+      '2026-10-07 ',
+      '2026-10-14 Costumes',
+      '2026-10-21 ',
+      '2026-10-28 Costumes,Auction',
+    ]);
+  });
+
+  it('attaches no events to a meetup without special events', () => {
+    expect(upcomingOccurrences([weekly], WEDNESDAY_NOON, 1)[0]?.events).toEqual([]);
+  });
+});
+
+describe('remainingDates', () => {
+  const meetup = aMeetup({ 'end-time': '22:00' });
+
+  it('keeps future dates, soonest first, and drops past ones', () => {
+    const event = aSpecialEvent({ dates: ['2026-10-28', '2026-09-30', '2026-10-14'] });
+
+    expect(remainingDates(event, meetup, WEDNESDAY_NOON)).toEqual(['2026-10-14', '2026-10-28']);
+  });
+
+  it("keeps today's date until the meetup ends", () => {
+    const event = aSpecialEvent({ dates: ['2026-10-07'] });
+
+    expect(remainingDates(event, meetup, { date: '2026-10-07', minutesSinceMidnight: 21 * 60 + 59 })).toEqual(['2026-10-07']);
+    expect(remainingDates(event, meetup, { date: '2026-10-07', minutesSinceMidnight: 22 * 60 })).toEqual([]);
   });
 });

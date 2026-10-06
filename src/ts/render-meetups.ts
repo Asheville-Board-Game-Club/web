@@ -1,5 +1,9 @@
-import type { MapImage, Meetup, MeetupLocation } from './meetup';
+import type { LocalDateTime } from './asheville-clock';
+import { formatShortDate } from './calendar-date';
+import type { MapImage, Meetup, MeetupLocation, SpecialEvent } from './meetup';
+import { specialEventId } from './special-event-id';
 import { formatTime } from './time-of-day';
+import { remainingDates } from './upcoming-meetups';
 
 // Enough for element text and double-quoted attributes, which is all this file produces.
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '"': '&quot;' };
@@ -39,7 +43,39 @@ function renderNotes(notes: string[]): string {
   return `<ul>${notes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul>`;
 }
 
-export function renderMeetupCard(meetup: Meetup): string {
+/** A style attribute for the event's colors, or nothing when it has none. */
+export function eventStyle(event: SpecialEvent): string {
+  // The text color goes in a custom property so the stylesheet can apply it to headings and dates too.
+  const declarations = [
+    event['background-color'] && `background-color: ${event['background-color']}`,
+    event['text-color'] && `--event-text: ${event['text-color']}`,
+  ].filter(Boolean);
+  return declarations.length > 0 ? ` style="${escapeHtml(declarations.join('; '))}"` : '';
+}
+
+function renderSpecialEvent(meetup: Meetup, event: SpecialEvent, dates: string[]): string {
+  const image = event.image ? `<img src="${escapeHtml(event.image.src)}" alt="${escapeHtml(event.image.alt)}" loading="lazy" />` : '';
+  return (
+    `<div class="special-event" id="${escapeHtml(specialEventId(meetup, event))}"${eventStyle(event)}>` +
+    image +
+    `<h3>${escapeHtml(event.name)}</h3>` +
+    `<p class="special-event-dates">${dates.map((date) => escapeHtml(formatShortDate(date))).join(' &middot; ')}</p>` +
+    `<p>${escapeHtml(event.description)}</p>` +
+    `</div>`
+  );
+}
+
+function renderSpecialEvents(meetup: Meetup, now: LocalDateTime): string {
+  const upcoming = (meetup['special-events'] ?? [])
+    .map((event) => ({ event, dates: remainingDates(event, meetup, now) }))
+    .filter(({ dates }) => dates.length > 0);
+  if (upcoming.length === 0) {
+    return '';
+  }
+  return `<h3>Upcoming special events</h3>${upcoming.map(({ event, dates }) => renderSpecialEvent(meetup, event, dates)).join('')}`;
+}
+
+export function renderMeetupCard(meetup: Meetup, now: LocalDateTime): string {
   const { location } = meetup;
   const map = location['map-image'] ? renderMap(location['map-image'], location['map-url']) : '';
   return (
@@ -48,10 +84,11 @@ export function renderMeetupCard(meetup: Meetup): string {
     `<p><strong>${escapeHtml(describeSchedule(meetup))}</strong></p>` +
     `<div class="location">${renderAddress(location)}${map}</div>` +
     renderNotes(meetup.notes) +
+    renderSpecialEvents(meetup, now) +
     `</section>`
   );
 }
 
-export function renderMeetups(meetups: Meetup[]): string {
-  return meetups.map(renderMeetupCard).join('');
+export function renderMeetups(meetups: Meetup[], now: LocalDateTime): string {
+  return meetups.map((meetup) => renderMeetupCard(meetup, now)).join('');
 }

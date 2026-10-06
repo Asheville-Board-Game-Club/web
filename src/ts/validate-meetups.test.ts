@@ -1,5 +1,5 @@
 import type { Meetup } from './meetup';
-import { aMeetup } from './test-meetup';
+import { aMeetup, aSpecialEvent } from './test-meetup';
 import { validateMeetups } from './validate-meetups';
 
 function withField(field: string, value: unknown): Record<string, unknown> {
@@ -14,6 +14,10 @@ function withLocationField(field: string, value: unknown): Record<string, unknow
 function withMapImageField(field: string, value: unknown): Record<string, unknown> {
   const meetup = aMeetup();
   return withLocationField('map-image', { ...meetup.location['map-image'], [field]: value });
+}
+
+function withEventField(field: string, value: unknown): Record<string, unknown> {
+  return withField('special-events', [{ ...aSpecialEvent(), [field]: value }]);
 }
 
 function without(meetup: Meetup, field: keyof Meetup): Record<string, unknown> {
@@ -125,5 +129,63 @@ describe('validateMeetups', () => {
     expect(validateMeetups([aMeetup({ 'start-time': start, 'end-time': end })])).toEqual([
       "meetups[0].end-time must be after start-time (meetups can't run past midnight)",
     ]);
+  });
+
+  it('accepts special events, with or without their optional fields', () => {
+    const { dates, description } = aSpecialEvent();
+    const plain = { name: 'Plain event', dates, description };
+
+    expect(validateMeetups([aMeetup({ 'special-events': [aSpecialEvent(), plain] })])).toEqual([]);
+  });
+
+  it.each([
+    ['name', '', 'must be non-empty text'],
+    ['description', '', 'must be non-empty text'],
+    ['dates', '2026-10-28', 'must be a list'],
+    ['dates', [], 'must not be empty'],
+    ['background-color', 'orange', 'must be a hex color like "#f4e1c1"'],
+    ['background-color', '#fff', 'must be a hex color like "#f4e1c1"'],
+    ['text-color', 'black', 'must be a hex color like "#f4e1c1"'],
+    ['image', '/img/events/halloween.webp', 'must be an object'],
+    ['colour', '#f4e1c1', 'is not a known field'],
+  ])('rejects special event %s of %j', (field, value, problem) => {
+    expect(validateMeetups([withEventField(field, value)])).toEqual([`meetups[0].special-events[0].${field} ${problem}`]);
+  });
+
+  it.each(['10/28/2026', '2026-10-28T17:30', '2026-02-30', '2026-13-01'])('rejects the special event date %j', (date) => {
+    expect(validateMeetups([withEventField('dates', [date])])).toEqual([
+      'meetups[0].special-events[0].dates[0] must be a real date like "2026-10-28"',
+    ]);
+  });
+
+  it('rejects special event images without a site path or alt text', () => {
+    expect(validateMeetups([withEventField('image', { src: 'halloween.webp', alt: '' })])).toEqual([
+      'meetups[0].special-events[0].image.src must be a site path starting with /',
+      'meetups[0].special-events[0].image.alt must be non-empty text',
+    ]);
+  });
+
+  it("rejects special event dates that aren't on the meetup's day of the week", () => {
+    const event = aSpecialEvent({ dates: ['2026-10-28', '2026-10-31'] });
+
+    expect(validateMeetups([aMeetup({ 'day-of-week': 'Wednesday', 'special-events': [event] })])).toEqual([
+      'meetups[0].special-events[0].dates has 2026-10-31, which is not a Wednesday',
+    ]);
+  });
+
+  it('rejects special events whose names would give the same link', () => {
+    const events = [aSpecialEvent({ name: 'Game Swap' }), aSpecialEvent({ name: 'Game swap!' })];
+
+    expect(validateMeetups([aMeetup({ id: 'weekly', 'special-events': events })])).toEqual([
+      'meetups[0].special-events[1].name gives the same link (#weekly-game-swap) as another special event',
+    ]);
+  });
+
+  it('allows the same event name on different meetups', () => {
+    const event = aSpecialEvent({ dates: ['2026-10-28'] });
+
+    expect(validateMeetups([aMeetup({ id: 'first', 'special-events': [event] }), aMeetup({ id: 'second', 'special-events': [event] })])).toEqual(
+      [],
+    );
   });
 });

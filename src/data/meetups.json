@@ -29,6 +29,30 @@
       "There should be a roll of name tags on a table. Please make and wear a name tag. It helps everyone.",
       "We have a dedicated spot for games that belong to the club members that is separate from the Well Played library, and an area reserved for us to mingle and play near each other.",
       "Official start time is 5:30 PM but there is usually someone there by 5:00."
+    ],
+    "special-events": [
+      {
+        "name": "Halloween Party & Spooky Game Night",
+        "dates": ["2026-10-28"],
+        "description": "A Halloween party with a spooky game theme. Bring your favorite horror, mystery, and monster games.",
+        "image": {
+          "src": "/img/events/witch.webp",
+          "alt": "Silhouette of a witch flying on a broomstick, her cloak streaming behind her"
+        },
+        "background-color": "#ff7518",
+        "text-color": "#111111"
+      },
+      {
+        "name": "Play to Win - Power Grid: Outpost",
+        "dates": ["2026-10-07", "2026-10-14", "2026-10-21", "2026-10-28", "2026-11-04"],
+        "description": "Play Power Grid: Outpost! Each play (up to 3) earns you a chance to win a copy of your very own.",
+        "image": {
+          "src": "/img/events/play-to-win.svg",
+          "alt": "A meeple holding an entry ticket"
+        },
+        "background-color": "#223242",
+        "text-color": "#eadcc6"
+      }
     ]
   }
 ]

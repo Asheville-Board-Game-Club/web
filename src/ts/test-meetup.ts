@@ -1,4 +1,4 @@
-import type { Meetup } from './meetup';
+import type { Meetup, SpecialEvent } from './meetup';
 
 export function aMeetup(overrides: Partial<Meetup> = {}): Meetup {
   return {
@@ -26,6 +26,19 @@ export function aMeetup(overrides: Partial<Meetup> = {}): Meetup {
       },
     },
     notes: ['Bring a game.', 'Wear a name tag.'],
+    ...overrides,
+  };
+}
+
+/** Dates are Wednesdays, to match aMeetup's default day. */
+export function aSpecialEvent(overrides: Partial<SpecialEvent> = {}): SpecialEvent {
+  return {
+    name: 'Halloween Game Night',
+    dates: ['2026-10-28'],
+    description: 'Costumes welcome.',
+    image: { src: '/img/events/halloween.webp', alt: 'Jack-o-lanterns around a game board' },
+    'background-color': '#f4e1c1',
+    'text-color': '#3a1f00',
     ...overrides,
   };
 }

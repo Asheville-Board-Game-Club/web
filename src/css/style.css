@@ -280,3 +280,68 @@ main {
 .upcoming-time {
   color: var(--olive);
 }
+
+.upcoming .upcoming-events {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0 0;
+}
+
+.upcoming .upcoming-events li {
+  width: fit-content;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 1rem;
+  font-size: 0.9em;
+  color: var(--event-text, inherit);
+}
+
+/* The link carries the pill's padding so the whole pill is clickable. */
+.upcoming .upcoming-events a {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.1rem 0.6rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.upcoming .upcoming-events a:hover {
+  text-decoration: underline;
+}
+
+.upcoming .upcoming-events img {
+  height: 1.5em;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* AIDEV-NOTE: --event-text is set inline from an event's text-color (render-meetups.ts eventStyle). */
+.special-event {
+  display: flow-root;
+  color: var(--event-text, inherit);
+  margin: 0.75rem 0;
+  padding: 0.25rem 1rem 0.5rem;
+  border: 1px solid var(--cream);
+  border-radius: var(--radius);
+}
+
+.special-event h3 {
+  margin-bottom: 0.25rem;
+  color: var(--event-text, var(--navy));
+}
+
+.special-event-dates {
+  margin-top: 0;
+  font-weight: 700;
+  color: var(--event-text, var(--olive));
+}
+
+.special-event img {
+  float: right;
+  width: 8rem;
+  max-width: 40%;
+  height: auto;
+  margin: 0.75rem 0 0.5rem 1rem;
+}
