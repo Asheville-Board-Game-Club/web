@@ -3,3 +3,4 @@ _site/
 .yarn/*
 !.yarn/releases
 .DS_Store
+*.swp
