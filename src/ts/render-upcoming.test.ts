@@ -59,38 +59,56 @@ describe('renderUpcoming', () => {
       'li ul.upcoming-events > li',
     );
 
-    expect(Array.from(items, (item) => item.textContent)).toEqual(['★ Costumes', '★ Auction']);
+    expect(Array.from(items, (item) => item.querySelector('summary')?.textContent)).toEqual(['★ Costumes', '★ Auction']);
     expect(items[0]?.getAttribute('style')).toBe('background-color: #f4e1c1; --event-text: #3a1f00');
     expect(items[1]?.hasAttribute('style')).toBe(false);
   });
 
-  it('links each special event to its block on the Meetups page', () => {
-    const events = [aSpecialEvent({ name: 'Costume Contest' })];
+  it("shows each special event's description when it is opened", () => {
+    const events = [aSpecialEvent({ description: 'Costumes welcome.' })];
 
-    const link = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('.upcoming-events a');
+    const details = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('.upcoming-events details');
 
-    expect(link?.getAttribute('href')).toBe('/meetups/#weekly-costume-contest');
-    expect(link?.textContent).toContain('Costume Contest');
+    expect(details?.hasAttribute('open')).toBe(false);
+    expect(details?.querySelector('summary + p')?.textContent).toBe('Costumes welcome.');
+  });
+
+  it('lets only one special event be open at a time, across occurrences', () => {
+    const html = renderUpcoming(
+      [
+        { meetup, date: '2026-10-21', events: [aSpecialEvent({ name: 'Auction' })] },
+        { meetup, date: '2026-10-28', events: [aSpecialEvent({ name: 'Costumes' }), aSpecialEvent({ name: 'Raffle' })] },
+      ],
+      '2026-10-07',
+    );
+
+    const names = Array.from(toElement(html).querySelectorAll('.upcoming-events details'), (details) => details.getAttribute('name'));
+    expect(names).toHaveLength(3);
+    expect(new Set(names).size).toBe(1);
+    expect(names[0]).toBeTruthy();
   });
 
   it("shows the event's image after its name, in place of the star", () => {
     const events = [aSpecialEvent({ name: 'Costumes', image: { src: '/img/events/witch.webp', alt: 'A witch' } })];
 
-    const link = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('.upcoming-events a');
+    const summary = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('.upcoming-events summary');
 
-    expect(link?.textContent).toBe('Costumes ');
-    expect(link?.lastElementChild?.getAttribute('src')).toBe('/img/events/witch.webp');
-    expect(link?.lastElementChild?.getAttribute('alt')).toBe('');
+    expect(summary?.textContent).toBe('Costumes ');
+    expect(summary?.lastElementChild?.getAttribute('src')).toBe('/img/events/witch.webp');
+    expect(summary?.lastElementChild?.getAttribute('alt')).toBe('');
   });
 
   it('omits the events list when an occurrence has none', () => {
     expect(toElement(renderUpcoming([{ meetup, date: '2026-10-14', events: [] }], '2026-10-07')).querySelector('.upcoming-events')).toBeNull();
   });
 
-  it('shows markup in an event name as text', () => {
-    const events = [aSpecialEvent({ name: '<b>Costumes</b>' })];
+  it('shows markup in an event name and description as text', () => {
+    const events = [aSpecialEvent({ name: '<b>Costumes</b>', description: '<i>Spooky</i>' })];
 
-    expect(toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('b')).toBeNull();
+    const element = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07'));
+
+    expect(element.querySelector('b')).toBeNull();
+    expect(element.querySelector('i')).toBeNull();
   });
 
   it('says so when nothing is coming up', () => {
