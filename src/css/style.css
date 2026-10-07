@@ -278,9 +278,11 @@ main {
   color: var(--event-text, inherit);
 }
 
-/* The summary carries the pill's padding so the whole pill toggles it. */
+/* The summary carries the pill's padding so the whole pill toggles it. space-between keeps the image at the
+   right edge while a closing pill is still wider than its contents (toggle-details-on-click.ts relies on it). */
 .upcoming .upcoming-events summary {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 0.4rem;
   padding: 0.2rem 0.8rem;
@@ -304,8 +306,9 @@ main {
 }
 
 /* Open, the image floats out of the summary so the name and the description both flow to its left,
-   as on the Meetups page; flow-root keeps the float inside the coloured box. */
-.upcoming .upcoming-events li:has(details[open]) {
+   as on the Meetups page. flow-root on the details itself (not the li) makes the float part of its height,
+   which toggle-details-on-click.ts measures and animates. */
+.upcoming .upcoming-events details[open] {
   display: flow-root;
   cursor: pointer;
 }
