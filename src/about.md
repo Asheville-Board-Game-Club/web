@@ -18,7 +18,7 @@ There is a group of co-organizers who have volunteered to guide the club in supp
 - David Corbin
 - Will Haskell
 - Olivia B.
-- West
+- West Read-Armijo 
 
 ## History
 
