@@ -1,8 +1,8 @@
 ---
 title: You're Subscribed
-permalink: /newsletter/signup/confirmed/
+permalink: /newsletter/signup-confirmed/
 ---
 
 # You're Subscribed
 
-Your subscription is confirmed. Watch your inbox for news about meetups, special events and promotions.
+Your subscription is confirmed. Watch your inbox for news about meetups and special events.

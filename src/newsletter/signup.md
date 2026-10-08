@@ -5,7 +5,7 @@ permalink: /newsletter/signup/
 
 # Newsletter Sign-up
 
-Keep up with all the meetups, special events and promotions.
+Keep up with all the meetups and special events.
 
 {# Posts straight to Kit rather than using its embed script, which shows this form as a pop-up. #}
 <form class="signup" action="{{ site.newsletterFormUrl }}" method="post">
@@ -13,4 +13,4 @@ Keep up with all the meetups, special events and promotions.
 <button class="button secondary" type="submit">Subscribe</button>
 </form>
 
-<p class="fine-print">We won't send you spam. Unsubscribe at any time.</p>
+<p class="fine-print">We won't send you spam or sell your email address. Unsubscribe at any time.</p>
