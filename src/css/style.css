@@ -232,6 +232,39 @@ main {
   color: inherit;
 }
 
+.signup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.signup input {
+  flex: 1 1 12rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--cream);
+  border-radius: var(--radius);
+  font: inherit;
+}
+
+.signup input:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+/* .button is styled for links; a <button> also needs the browser's own border and font removed. */
+.signup .button {
+  margin: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fine-print {
+  font-size: 0.85rem;
+  color: var(--olive);
+}
+
 .social-icon {
   width: 1.6em;
   height: 1.6em;
