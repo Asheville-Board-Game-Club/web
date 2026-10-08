@@ -1,0 +1,8 @@
+// AIDEV-NOTE: `wrangler preview` (branch builds) needs this file; `wrangler deploy` (production) also reads it now.
+{
+  "name": "web",
+  "compatibility_date": "2026-10-08",
+  "assets": {
+    "directory": "./_site",
+  },
+}
