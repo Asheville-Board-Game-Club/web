@@ -8,6 +8,15 @@ permalink: /keep-informed/
 <div class="grid">
 <section class="card">
 
+## {% icon "email" %} Email Newsletter
+
+Keep up with all the meetups and special events.
+
+<a class="button secondary" href="/newsletter/signup/">Sign up for our newsletter</a>
+
+</section>
+<section class="card">
+
 ## {% icon "discord" %} Discord
 
 Discord is our official social media provider. It's the best place to:
