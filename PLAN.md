@@ -5,11 +5,13 @@ Goal: let 2–3 less technical editors change meetups and special events without
 ## Decisions
 
 - Storage: one R2 bucket holding `meetups.json` and uploaded images (event images, venue maps).
-- Site reads the data at runtime (Pages Function `GET /api/meetups`, or a public bucket domain).
+- Site reads the data at runtime (Worker route `GET /api/meetups`, or a public bucket domain).
 - Admin page at `/admin`, protected by Cloudflare Access (one-time email codes, allowlist of editor emails).
+- Admin write endpoints live under `/admin/api/` so the same Access application protects them.
+- Save routes verify the `Cf-Access-Jwt-Assertion` token (team keys + AUD tag) and record the editor's email.
 - Form-based editing (no JSON) of both meetups and special events, including image upload.
 - Saves go live immediately; no draft/publish step.
-- A save is validated (same rules as `validate-meetups.ts`) in the admin page and again in the save Function.
+- A save is validated (same rules as `validate-meetups.ts`) in the admin page and again in the save route.
 - Concurrent edits: conditional write on ETag; a stale save is rejected, not merged.
 - History: each save keeps a timestamped copy of the previous data; editors can restore from a History list.
 - History retention: 60 days, via an R2 lifecycle rule.
@@ -22,9 +24,11 @@ Goal: let 2–3 less technical editors change meetups and special events without
 - Extend the data model and validator for the new schedule kinds; update occurrence and schedule-description logic.
 - Generalize the special-event date rule to "is an occurrence of the meetup".
 - Create the R2 bucket, history lifecycle rule, and Access policy.
-- Read Function and switch the site to fetch from it.
-- Save Function: validate, back up the previous copy, conditional write.
-- Image upload Function; image-exists check against R2 instead of the file system.
+- Close the side doors to `/admin`: enable Access on (or disable) the workers.dev and preview URLs.
+- Add a Worker script (`main` in `wrangler.jsonc`) to serve the API routes; today the Worker serves static assets only.
+- Read route and switch the site to fetch from it.
+- Save route: validate, back up the previous copy, conditional write.
+- Image upload route; image-exists check against R2 instead of the file system.
 - Admin page: meetup editor, special-event editor, image upload, History with restore.
 - Migrate the current `src/data/meetups.json` and images to R2; retire them from the repo, the build validation,
   the pre-commit hook, and the GitHub workflow.
@@ -33,7 +37,7 @@ Goal: let 2–3 less technical editors change meetups and special events without
 
 - Images: never delete uploaded images (so restores always work), or let editors delete them?
 - Who maintains the Access allowlist of editors (confirm: you, in the Cloudflare dashboard)?
-- Read path: public bucket domain or a Pages Function?
+- Read path: public bucket domain or a Worker route?
 - Past special events: leave them in the data, or let editors (or the system) clear them out?
 - Monthly "nth weekday": which values are allowed (1st–4th and last; is a 5th needed)?
 - Can editors create and delete whole meetups, or only edit existing ones?
