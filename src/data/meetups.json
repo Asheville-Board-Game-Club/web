@@ -52,6 +52,17 @@
         },
         "background-color": "#223242",
         "text-color": "#eadcc6"
+      },
+      {
+        "name": "Play to Win - Free Ride: USA",
+        "dates": ["2026-11-04", "2026-11-11", "2026-11-18", "2026-11-25", "2026-12-02", "2026-12-09"],
+        "description": "Play Free Ride: USA! Each play (up to 3) earns you a chance to win a copy of your very own. Thanks Rio Grande Games for donating our prizes.",
+        "image": {
+          "src": "/img/events/play-to-win.svg",
+          "alt": "A meeple holding an entry ticket"
+        },
+        "background-color": "#223242",
+        "text-color": "#eadcc6"
       }
     ]
   }
