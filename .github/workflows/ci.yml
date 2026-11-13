@@ -1,12 +1,13 @@
 # AIDEV-NOTE: Catches bad meetups.json edits made where the local pre-commit hook can't run (e.g. GitHub's web editor).
-name: Validate meetup data
+# The full Jest run includes meetups-data.test.ts, which validates the data file.
+name: CI
 
 on:
   push:
   pull_request:
 
 jobs:
-  validate-data:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,4 +16,7 @@ jobs:
           node-version-file: .nvmrc
       - run: corepack enable
       - run: yarn install --immutable
-      - run: yarn validate-data
+      - run: yarn lint
+      - run: yarn prettier --check .
+      - run: yarn typecheck
+      - run: yarn test
