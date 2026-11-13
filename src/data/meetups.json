@@ -5,7 +5,7 @@
     "recurring": true,
     "frequency": "weekly",
     "day-of-week": "Wednesday",
-    "start-time": "17:30",
+    "start-time": "17:00",
     "end-time": "22:00",
     "location": {
       "name": "Well Played Board Game Café",
