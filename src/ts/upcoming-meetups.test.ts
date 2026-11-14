@@ -1,6 +1,6 @@
 import type { LocalDateTime } from './asheville-clock';
 import { aMeetup, aMeetupsData, aOnceMeetup, aSpecialEvent } from './test-meetup';
-import { hasPassed, occursOn, remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
+import { hasPassed, isTentative, occursOn, remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
 
 const WEDNESDAY_NOON: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
 
@@ -93,6 +93,23 @@ describe('occursOn', () => {
 
     expect(occursOn(meetup, '2026-12-12')).toBe(true);
     expect(occursOn(meetup, '2026-12-19')).toBe(false);
+  });
+});
+
+describe('isTentative', () => {
+  const meetup = aOnceMeetup({ 'tentative-until': '2026-12-27' });
+
+  it('is true on days before the tentative-until date', () => {
+    expect(isTentative(meetup, '2026-12-26')).toBe(true);
+  });
+
+  it('is false from the tentative-until date on', () => {
+    expect(isTentative(meetup, '2026-12-27')).toBe(false);
+    expect(isTentative(meetup, '2026-12-28')).toBe(false);
+  });
+
+  it('is false for a meetup without a tentative-until date', () => {
+    expect(isTentative(aOnceMeetup(), '2026-01-01')).toBe(false);
   });
 });
 

@@ -46,6 +46,8 @@ interface MeetupDetails {
   'end-time': string;
   location: MeetupLocation;
   notes: string[];
+  /** "YYYY-MM-DD"; the meetup is marked tentative on days before this one. */
+  'tentative-until'?: string;
 }
 
 export interface WeeklyMeetup extends MeetupDetails {

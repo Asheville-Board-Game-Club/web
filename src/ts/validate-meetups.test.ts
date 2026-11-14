@@ -101,6 +101,18 @@ describe('validateMeetups', () => {
     ]);
   });
 
+  it('accepts a tentative-until date on any meetup', () => {
+    expect(validateMeetups(dataWith([aMeetup({ 'tentative-until': '2026-12-27' }), aOnceMeetup({ 'tentative-until': '2026-12-27' })]))).toEqual(
+      [],
+    );
+  });
+
+  it('rejects a tentative-until that is not a real date', () => {
+    expect(validateMeetups(dataWith([aOnceMeetup({ 'tentative-until': '12-27-2026' })]))).toEqual([
+      'meetups[0].tentative-until must be a real date like "2026-10-28"',
+    ]);
+  });
+
   it.each(['12/12/2026', '2026-12-32'])('rejects the one-off meetup date %j', (date) => {
     expect(validateMeetups(dataWith([aOnceMeetup({ date })]))).toEqual(['meetups[0].date must be a real date like "2026-10-28"']);
   });

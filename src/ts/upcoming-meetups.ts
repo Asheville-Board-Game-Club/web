@@ -20,6 +20,11 @@ export function occursOn(meetup: Meetup, date: CalendarDate): boolean {
   return meetup.frequency === 'once' ? meetup.date === date : meetup['day-of-week'] === dayOfWeek(date);
 }
 
+export function isTentative(meetup: Meetup, today: CalendarDate): boolean {
+  const until = meetup['tentative-until'];
+  return until !== undefined && today < until;
+}
+
 /** True once a one-off meetup has ended; a weekly meetup never passes. */
 export function hasPassed(meetup: Meetup, now: LocalDateTime): boolean {
   return meetup.frequency === 'once' && hasEnded(meetup, meetup.date, now);

@@ -94,8 +94,10 @@ const meetupDetails = {
   notes: arrayOf(text),
 };
 
-const weeklyMeetup = object({ ...meetupDetails, 'day-of-week': oneOf(DAYS_OF_WEEK) });
-const onceMeetup = object({ ...meetupDetails, date: calendarDate });
+const optionalMeetupDetails = { 'tentative-until': calendarDate };
+
+const weeklyMeetup = object({ ...meetupDetails, 'day-of-week': oneOf(DAYS_OF_WEEK) }, optionalMeetupDetails);
+const onceMeetup = object({ ...meetupDetails, date: calendarDate }, optionalMeetupDetails);
 
 // The frequency picks which fields the rest of the meetup needs; anything but "once" is checked as weekly.
 const meetup: Check = (value, path) => (isPlainObject(value) && value.frequency === 'once' ? onceMeetup : weeklyMeetup)(value, path);

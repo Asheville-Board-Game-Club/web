@@ -36,6 +36,7 @@
       "title": "Weekend Meetup",
       "frequency": "once",
       "date": "2027-01-09",
+      "tentative-until": "2026-12-27",
       "start-time": "11:30",
       "end-time": "16:30",
       "location": {
@@ -54,7 +55,7 @@
         }
       },
       "notes": [
-        "We are in their \"Culture Room\" on the upper floor.",
+        "We will be in their \"Culture Room\" on the upper floor.",
         "If you park in the upper lot, there is a door where you can enter on the same floor and avoid the stairs.",
         "There should be a roll of name tags on a table. Please make and wear a name tag. It helps everyone.",
         "Please bring games you want to play."

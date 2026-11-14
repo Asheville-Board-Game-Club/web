@@ -24,6 +24,16 @@ describe('renderUpcoming', () => {
     expect(links?.[1]?.textContent).toBe('Well Played Board Game Café');
   });
 
+  it('stamps a tentative meetup after its link, judged by today', () => {
+    const tentative = aMeetup({ 'tentative-until': '2026-10-08' });
+
+    const stamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-07'));
+    const unstamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-08'));
+
+    expect(stamped.querySelector('a + .tentative-stamp')?.textContent).toBe('Tentative');
+    expect(unstamped.querySelector('.tentative-stamp')).toBeNull();
+  });
+
   it("labels today's occurrence", () => {
     const html = renderUpcoming([{ meetup, date: '2026-10-07', events: [] }], '2026-10-07');
 

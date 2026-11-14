@@ -1,6 +1,6 @@
 import { formatShortDate, type CalendarDate } from './calendar-date';
 import type { SpecialEvent } from './meetup';
-import { eventStyle, escapeHtml, renderVenue } from './render-meetups';
+import { eventStyle, escapeHtml, renderTentativeStamp, renderVenue } from './render-meetups';
 import { formatTime } from './time-of-day';
 import { UPCOMING_DAYS, type MeetupOccurrence } from './upcoming-meetups';
 
@@ -30,7 +30,7 @@ function renderOccurrence({ meetup, date, events }: MeetupOccurrence, today: Cal
   const times = `${formatTime(meetup['start-time'])} – ${formatTime(meetup['end-time'])}`;
   return (
     `<li><span class="upcoming-when">${escapeHtml(when)}</span> <span class="upcoming-time">${escapeHtml(times)}</span><br />` +
-    `<a href="/meetups/#${encodeURIComponent(meetup.id)}">${escapeHtml(meetup.title)}</a> &middot; ${renderVenue(meetup.location)}${renderEvents(events)}</li>`
+    `<a href="/meetups/#${encodeURIComponent(meetup.id)}">${escapeHtml(meetup.title)}</a>${renderTentativeStamp(meetup, today)} &middot; ${renderVenue(meetup.location)}${renderEvents(events)}</li>`
   );
 }
 

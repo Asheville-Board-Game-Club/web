@@ -1,9 +1,9 @@
 import type { LocalDateTime } from './asheville-clock';
-import { formatLongDate, formatShortDate } from './calendar-date';
+import { formatLongDate, formatShortDate, type CalendarDate } from './calendar-date';
 import type { MapImage, Meetup, MeetupLocation, MeetupsData, SpecialEvent } from './meetup';
 import { specialEventId } from './special-event-id';
 import { formatTime } from './time-of-day';
-import { hasPassed, remainingDates } from './upcoming-meetups';
+import { hasPassed, isTentative, remainingDates } from './upcoming-meetups';
 
 // Enough for element text and double-quoted attributes, which is all this file produces.
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '"': '&quot;' };
@@ -11,6 +11,11 @@ const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '"': '
 // The JSON is edited by hand, so treat every value as text rather than markup.
 export function escapeHtml(text: string): string {
   return text.replace(/[&<"]/g, (character) => HTML_ESCAPES[character] ?? character);
+}
+
+/** A Tentative stamp, with a leading space, while the meetup is still tentative; otherwise nothing. */
+export function renderTentativeStamp(meetup: Meetup, today: CalendarDate): string {
+  return isTentative(meetup, today) ? ' <span class="tentative-stamp">Tentative</span>' : '';
 }
 
 export function describeSchedule(meetup: Meetup): string {
@@ -80,7 +85,7 @@ export function renderMeetupCard(meetup: Meetup, events: SpecialEvent[], now: Lo
   const map = location['map-image'] ? renderMap(location['map-image'], location['map-url']) : '';
   return (
     `<section class="card" id="${escapeHtml(meetup.id)}">` +
-    `<h2>${escapeHtml(meetup.title)}</h2>` +
+    `<h2>${escapeHtml(meetup.title)}${renderTentativeStamp(meetup, now.date)}</h2>` +
     `<p><strong>${escapeHtml(describeSchedule(meetup))}</strong></p>` +
     `<div class="location">${renderAddress(location)}${map}</div>` +
     renderNotes(meetup.notes) +

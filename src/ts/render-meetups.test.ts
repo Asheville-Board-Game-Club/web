@@ -40,6 +40,19 @@ describe('renderMeetupCard', () => {
     expect(card.querySelector('p > strong')?.textContent).toBe('Every Wednesday, 5:30\u00a0PM to 10:00\u00a0PM');
   });
 
+  it('stamps the title as tentative before the tentative-until date', () => {
+    const heading = toElement(renderMeetupCard(aMeetup({ title: 'Game day', 'tentative-until': '2026-10-08' }), [], NOW)).querySelector('h2');
+
+    expect(heading?.textContent).toBe('Game day Tentative');
+    expect(heading?.querySelector('.tentative-stamp')?.textContent).toBe('Tentative');
+  });
+
+  it('has no tentative stamp from the tentative-until date on', () => {
+    const card = toElement(renderMeetupCard(aMeetup({ 'tentative-until': NOW.date }), [], NOW));
+
+    expect(card.querySelector('.tentative-stamp')).toBeNull();
+  });
+
   it('links the venue name to its website and lists the full address', () => {
     const address = toElement(renderMeetupCard(aMeetup(), [], NOW)).querySelector('.location > p');
 
