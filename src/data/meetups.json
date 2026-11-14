@@ -30,6 +30,35 @@
         "We have a dedicated spot for games that belong to the club members that is separate from the Well Played library, and an area reserved for us to mingle and play near each other.",
         "Official start time is 5:30 PM but there is usually someone there by 5:00."
       ]
+    },
+    {
+      "id": "white-labs-saturday-meetup",
+      "title": "Weekend Meetup",
+      "frequency": "once",
+      "date": "2027-01-09",
+      "start-time": "11:30",
+      "end-time": "16:30",
+      "location": {
+        "name": "White Labs Brewing Co.",
+        "website": "https://whitelabsbrewingco.com/",
+        "street": "172 S Charlotte St",
+        "city": "Asheville",
+        "state": "NC",
+        "zip": "28801",
+        "map-url": "https://www.google.com/maps/search/?api=1&query=White+Labs+Brewing+Co+172+S+Charlotte+St+Asheville+NC+28801",
+        "map-image": {
+          "src": "/img/map-white-labs.webp",
+          "alt": "Map showing White Labs Brewing Co. on South Charlotte Street near Martin Luther King Jr Drive. Opens Google Maps.",
+          "attribution": "OpenStreetMap",
+          "attribution-url": "https://www.openstreetmap.org/copyright"
+        }
+      },
+      "notes": [
+        "We are in their \"Culture Room\" on the upper floor.",
+        "If you park in the upper lot, there is a door where you can enter on the same floor and avoid the stairs.",
+        "There should be a roll of name tags on a table. Please make and wear a name tag. It helps everyone.",
+        "Please bring games you want to play."
+      ]
     }
   ],
   "special-events": [
