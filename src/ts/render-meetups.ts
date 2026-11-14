@@ -1,6 +1,6 @@
 import type { LocalDateTime } from './asheville-clock';
 import { formatShortDate } from './calendar-date';
-import type { MapImage, Meetup, MeetupLocation, SpecialEvent } from './meetup';
+import type { MapImage, Meetup, MeetupLocation, MeetupsData, SpecialEvent } from './meetup';
 import { specialEventId } from './special-event-id';
 import { formatTime } from './time-of-day';
 import { remainingDates } from './upcoming-meetups';
@@ -65,17 +65,16 @@ function renderSpecialEvent(meetup: Meetup, event: SpecialEvent, dates: string[]
   );
 }
 
-function renderSpecialEvents(meetup: Meetup, now: LocalDateTime): string {
-  const upcoming = (meetup['special-events'] ?? [])
-    .map((event) => ({ event, dates: remainingDates(event, meetup, now) }))
-    .filter(({ dates }) => dates.length > 0);
+function renderSpecialEvents(meetup: Meetup, events: SpecialEvent[], now: LocalDateTime): string {
+  const upcoming = events.map((event) => ({ event, dates: remainingDates(event, meetup, now) })).filter(({ dates }) => dates.length > 0);
   if (upcoming.length === 0) {
     return '';
   }
   return `<h3>Upcoming special events</h3>${upcoming.map(({ event, dates }) => renderSpecialEvent(meetup, event, dates)).join('')}`;
 }
 
-export function renderMeetupCard(meetup: Meetup, now: LocalDateTime): string {
+/** The card shows the upcoming dates of each event that fall on this meetup; `events` may include others. */
+export function renderMeetupCard(meetup: Meetup, events: SpecialEvent[], now: LocalDateTime): string {
   const { location } = meetup;
   const map = location['map-image'] ? renderMap(location['map-image'], location['map-url']) : '';
   return (
@@ -84,11 +83,11 @@ export function renderMeetupCard(meetup: Meetup, now: LocalDateTime): string {
     `<p><strong>${escapeHtml(describeSchedule(meetup))}</strong></p>` +
     `<div class="location">${renderAddress(location)}${map}</div>` +
     renderNotes(meetup.notes) +
-    renderSpecialEvents(meetup, now) +
+    renderSpecialEvents(meetup, events, now) +
     `</section>`
   );
 }
 
-export function renderMeetups(meetups: Meetup[], now: LocalDateTime): string {
-  return meetups.map((meetup) => renderMeetupCard(meetup, now)).join('');
+export function renderMeetups(data: MeetupsData, now: LocalDateTime): string {
+  return data.meetups.map((meetup) => renderMeetupCard(meetup, data['special-events'], now)).join('');
 }

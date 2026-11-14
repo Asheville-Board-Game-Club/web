@@ -1,4 +1,4 @@
-import type { Meetup, SpecialEvent } from './meetup';
+import type { Meetup, MeetupsData, SpecialEvent } from './meetup';
 
 export function aMeetup(overrides: Partial<Meetup> = {}): Meetup {
   return {
@@ -41,4 +41,8 @@ export function aSpecialEvent(overrides: Partial<SpecialEvent> = {}): SpecialEve
     'text-color': '#3a1f00',
     ...overrides,
   };
+}
+
+export function aMeetupsData(meetups: Meetup[], events: SpecialEvent[] = []): MeetupsData {
+  return { meetups, 'special-events': events };
 }

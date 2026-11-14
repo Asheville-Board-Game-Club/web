@@ -8,7 +8,5 @@ const container = document.getElementById('upcoming-meetups');
 if (container) {
   toggleDetailsOnClick(container, !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const now = ashevilleDateTime(new Date());
-  void loadMeetups(container, window.fetch.bind(window), (meetups) =>
-    renderUpcoming(upcomingOccurrences(meetups, now, UPCOMING_DAYS), now.date),
-  );
+  void loadMeetups(container, window.fetch.bind(window), (data) => renderUpcoming(upcomingOccurrences(data, now, UPCOMING_DAYS), now.date));
 }

@@ -1,12 +1,16 @@
 import type { Meetup, SpecialEvent } from './meetup';
 
-/** The HTML id of the event's block on the Meetups page, e.g. "weekly-halloween-party"; Home links to it. */
-export function specialEventId(meetup: Meetup, event: SpecialEvent): string {
-  const slug = event.name
+/** The link-safe form of the event's name, e.g. "halloween-party". */
+export function specialEventSlug(event: SpecialEvent): string {
+  return event.name
     .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-  return `${meetup.id}-${slug}`;
+}
+
+/** The HTML id of the event's block in a meetup's card on the Meetups page, e.g. "weekly-halloween-party". */
+export function specialEventId(meetup: Meetup, event: SpecialEvent): string {
+  return `${meetup.id}-${specialEventSlug(event)}`;
 }

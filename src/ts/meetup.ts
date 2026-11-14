@@ -27,7 +27,7 @@ export interface EventImage {
 
 export interface SpecialEvent {
   name: string;
-  /** "YYYY-MM-DD"; each must fall on the meetup's day of the week. */
+  /** "YYYY-MM-DD"; each must be a date exactly one meetup occurs on, which is where the event shows. */
   dates: string[];
   description: string;
   image?: EventImage;
@@ -50,5 +50,9 @@ export interface Meetup {
   'end-time': string;
   location: MeetupLocation;
   notes: string[];
-  'special-events'?: SpecialEvent[];
+}
+
+export interface MeetupsData {
+  meetups: Meetup[];
+  'special-events': SpecialEvent[];
 }

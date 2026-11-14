@@ -1,69 +1,71 @@
-[
-  {
-    "id": "weekly",
-    "title": "Weekly meetup",
-    "recurring": true,
-    "frequency": "weekly",
-    "day-of-week": "Wednesday",
-    "start-time": "17:30",
-    "end-time": "22:00",
-    "location": {
-      "name": "Well Played Board Game Café",
-      "website": "https://wellplayedasheville.com/",
-      "street": "162 Coxe Ave",
-      "suite": "Suite 101",
-      "city": "Asheville",
-      "state": "NC",
-      "zip": "28801",
-      "map-url": "https://www.google.com/maps/search/?api=1&query=Well+Played+Board+Game+Cafe+162+Coxe+Ave+Asheville+NC+28801",
-      "map-image": {
-        "src": "/img/map-well-played.webp",
-        "alt": "Map showing Well Played Board Game Café on Coxe Ave in South Slope. Opens Google Maps.",
-        "attribution": "OpenStreetMap",
-        "attribution-url": "https://www.openstreetmap.org/copyright"
-      }
+{
+  "meetups": [
+    {
+      "id": "weekly",
+      "title": "Weekly meetup",
+      "recurring": true,
+      "frequency": "weekly",
+      "day-of-week": "Wednesday",
+      "start-time": "17:30",
+      "end-time": "22:00",
+      "location": {
+        "name": "Well Played Board Game Café",
+        "website": "https://wellplayedasheville.com/",
+        "street": "162 Coxe Ave",
+        "suite": "Suite 101",
+        "city": "Asheville",
+        "state": "NC",
+        "zip": "28801",
+        "map-url": "https://www.google.com/maps/search/?api=1&query=Well+Played+Board+Game+Cafe+162+Coxe+Ave+Asheville+NC+28801",
+        "map-image": {
+          "src": "/img/map-well-played.webp",
+          "alt": "Map showing Well Played Board Game Café on Coxe Ave in South Slope. Opens Google Maps.",
+          "attribution": "OpenStreetMap",
+          "attribution-url": "https://www.openstreetmap.org/copyright"
+        }
+      },
+      "notes": [
+        "Well Played generously allows meetup attendees to use their game library for free. You do not need a pass.",
+        "We are almost always in the \"cafe portion\" (turn left when you walk in).",
+        "There should be a roll of name tags on a table. Please make and wear a name tag. It helps everyone.",
+        "We have a dedicated spot for games that belong to the club members that is separate from the Well Played library, and an area reserved for us to mingle and play near each other.",
+        "Official start time is 5:30 PM but there is usually someone there by 5:00."
+      ]
+    }
+  ],
+  "special-events": [
+    {
+      "name": "Halloween Party & Spooky Game Night",
+      "dates": ["2026-10-28"],
+      "description": "A Halloween party with a spooky game theme. Bring your favorite horror, mystery, and monster games.",
+      "image": {
+        "src": "/img/events/witch.webp",
+        "alt": "Silhouette of a witch flying on a broomstick, her cloak streaming behind her"
+      },
+      "background-color": "#ff7518",
+      "text-color": "#111111"
     },
-    "notes": [
-      "Well Played generously allows meetup attendees to use their game library for free. You do not need a pass.",
-      "We are almost always in the \"cafe portion\" (turn left when you walk in).",
-      "There should be a roll of name tags on a table. Please make and wear a name tag. It helps everyone.",
-      "We have a dedicated spot for games that belong to the club members that is separate from the Well Played library, and an area reserved for us to mingle and play near each other.",
-      "Official start time is 5:30 PM but there is usually someone there by 5:00."
-    ],
-    "special-events": [
-      {
-        "name": "Halloween Party & Spooky Game Night",
-        "dates": ["2026-10-28"],
-        "description": "A Halloween party with a spooky game theme. Bring your favorite horror, mystery, and monster games.",
-        "image": {
-          "src": "/img/events/witch.webp",
-          "alt": "Silhouette of a witch flying on a broomstick, her cloak streaming behind her"
-        },
-        "background-color": "#ff7518",
-        "text-color": "#111111"
+    {
+      "name": "Play to Win - Power Grid: Outpost",
+      "dates": ["2026-10-07", "2026-10-14", "2026-10-21"],
+      "description": "Play Power Grid: Outpost! Each play (up to 3) earns you a chance to win a copy of your very own. Thanks Rio Grande Games for donating our prizes.",
+      "image": {
+        "src": "/img/events/play-to-win.svg",
+        "alt": "A meeple holding an entry ticket"
       },
-      {
-        "name": "Play to Win - Power Grid: Outpost",
-        "dates": ["2026-10-07", "2026-10-14", "2026-10-21"],
-        "description": "Play Power Grid: Outpost! Each play (up to 3) earns you a chance to win a copy of your very own. Thanks Rio Grande Games for donating our prizes.",
-        "image": {
-          "src": "/img/events/play-to-win.svg",
-          "alt": "A meeple holding an entry ticket"
-        },
-        "background-color": "#223242",
-        "text-color": "#eadcc6"
+      "background-color": "#223242",
+      "text-color": "#eadcc6"
+    },
+    {
+      "name": "Play to Win - Free Ride: USA",
+      "dates": ["2026-11-04", "2026-11-11", "2026-11-18", "2026-11-25", "2026-12-02", "2026-12-09"],
+      "description": "Play Free Ride: USA! Each play (up to 3) earns you a chance to win a copy of your very own. Thanks Rio Grande Games for donating our prizes.",
+      "image": {
+        "src": "/img/events/play-to-win.svg",
+        "alt": "A meeple holding an entry ticket"
       },
-      {
-        "name": "Play to Win - Free Ride: USA",
-        "dates": ["2026-11-04", "2026-11-11", "2026-11-18", "2026-11-25", "2026-12-02", "2026-12-09"],
-        "description": "Play Free Ride: USA! Each play (up to 3) earns you a chance to win a copy of your very own. Thanks Rio Grande Games for donating our prizes.",
-        "image": {
-          "src": "/img/events/play-to-win.svg",
-          "alt": "A meeple holding an entry ticket"
-        },
-        "background-color": "#223242",
-        "text-color": "#eadcc6"
-      }
-    ]
-  }
-]
+      "background-color": "#223242",
+      "text-color": "#eadcc6"
+    }
+  ]
+}
