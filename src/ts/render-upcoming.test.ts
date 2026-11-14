@@ -30,7 +30,7 @@ describe('renderUpcoming', () => {
     const stamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-07', 30));
     const unstamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-08', 30));
 
-    expect(stamped.querySelector('a + .tentative-stamp')?.textContent).toBe('Tentative');
+    expect(stamped.querySelector('a + .tentative .tentative-stamp')?.textContent).toBe('Tentative');
     expect(unstamped.querySelector('.tentative-stamp')).toBeNull();
   });
 

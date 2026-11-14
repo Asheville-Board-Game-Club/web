@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import type { MeetupLocation } from './meetup';
 import type { LocalDateTime } from './asheville-clock';
-import { describeSchedule, renderMeetupCard, renderMeetups } from './render-meetups';
+import { describeSchedule, renderMeetupCard, renderMeetups, renderTentativeStamp } from './render-meetups';
 import { aMeetup, aMeetupsData, aOnceMeetup, aSpecialEvent } from './test-meetup';
 
 const NOW: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
@@ -31,6 +31,28 @@ describe('describeSchedule', () => {
   });
 });
 
+describe('renderTentativeStamp', () => {
+  it('explains when the meetup should be confirmed and links to the mailing list sign-up', () => {
+    const note = toElement(renderTentativeStamp(aOnceMeetup({ 'tentative-until': '2026-12-27' }), '2026-11-14')).querySelector(
+      '.tentative-note',
+    );
+
+    expect(note?.textContent).toBe(
+      'This meetup is subject to being rescheduled. It should be confirmed by Sunday, December 27. Join our mailing list to keep up to date.',
+    );
+    expect(note?.querySelector('a')?.getAttribute('href')).toBe('/newsletter/signup/');
+    expect(note?.querySelector('a')?.textContent).toBe('mailing list');
+  });
+
+  it('lets the stamp take focus so taps and keyboards can open the note', () => {
+    const stamp = toElement(renderTentativeStamp(aOnceMeetup({ 'tentative-until': '2026-12-27' }), '2026-11-14')).querySelector(
+      '.tentative-stamp',
+    );
+
+    expect(stamp?.getAttribute('tabindex')).toBe('0');
+  });
+});
+
 describe('renderMeetupCard', () => {
   it('renders the title, id, and schedule', () => {
     const card = toElement(renderMeetupCard(aMeetup({ id: 'monthly', title: 'Monthly game day' }), [], NOW));
@@ -43,7 +65,7 @@ describe('renderMeetupCard', () => {
   it('stamps the title as tentative before the tentative-until date', () => {
     const heading = toElement(renderMeetupCard(aMeetup({ title: 'Game day', 'tentative-until': '2026-10-08' }), [], NOW)).querySelector('h2');
 
-    expect(heading?.textContent).toBe('Game day Tentative');
+    expect(heading?.firstChild?.textContent).toBe('Game day ');
     expect(heading?.querySelector('.tentative-stamp')?.textContent).toBe('Tentative');
   });
 

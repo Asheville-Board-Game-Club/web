@@ -28,7 +28,7 @@ export function occursOn(meetup: Meetup, date: CalendarDate): boolean {
   return meetup.frequency === 'once' ? meetup.date === date : meetup['day-of-week'] === dayOfWeek(date);
 }
 
-export function isTentative(meetup: Meetup, today: CalendarDate): boolean {
+export function isTentative(meetup: Meetup, today: CalendarDate): meetup is Meetup & { 'tentative-until': CalendarDate } {
   const until = meetup['tentative-until'];
   return until !== undefined && today < until;
 }

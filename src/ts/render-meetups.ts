@@ -13,9 +13,18 @@ export function escapeHtml(text: string): string {
   return text.replace(/[&<"]/g, (character) => HTML_ESCAPES[character] ?? character);
 }
 
-/** A Tentative stamp, with a leading space, while the meetup is still tentative; otherwise nothing. */
+const NEWSLETTER_SIGNUP_URL = '/newsletter/signup/';
+
+// AIDEV-NOTE: The note opens on hover and on focus (CSS :focus-within), so taps and keyboards reach it, and its link.
+/** A Tentative stamp with an explanatory note, after a leading space, while the meetup is still tentative; otherwise nothing. */
 export function renderTentativeStamp(meetup: Meetup, today: CalendarDate): string {
-  return isTentative(meetup, today) ? ' <span class="tentative-stamp">Tentative</span>' : '';
+  if (!isTentative(meetup, today)) {
+    return '';
+  }
+  const note =
+    `This meetup is subject to being rescheduled. It should be confirmed by ${escapeHtml(formatLongDate(meetup['tentative-until']))}. ` +
+    `Join our <a href="${NEWSLETTER_SIGNUP_URL}">mailing list</a> to keep up to date.`;
+  return ` <span class="tentative"><span class="tentative-stamp" tabindex="0">Tentative</span><span class="tentative-note">${note}</span></span>`;
 }
 
 export function describeSchedule(meetup: Meetup): string {
