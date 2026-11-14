@@ -1,10 +1,8 @@
 import { formatShortDate, type CalendarDate } from './calendar-date';
 import type { SpecialEvent } from './meetup';
-import { eventStyle, escapeHtml, renderVenue } from './render-meetups';
+import { eventStyle, escapeHtml, renderTentativeStamp, renderVenue } from './render-meetups';
 import { formatTime } from './time-of-day';
-import { UPCOMING_DAYS, type MeetupOccurrence } from './upcoming-meetups';
-
-export const NO_UPCOMING_HTML = `<p>No meetups are scheduled in the next ${UPCOMING_DAYS} days.</p>`;
+import type { MeetupOccurrence } from './upcoming-meetups';
 
 // Sharing one name makes the browser keep at most one event open at a time.
 const EVENT_GROUP = 'upcoming-event';
@@ -30,13 +28,14 @@ function renderOccurrence({ meetup, date, events }: MeetupOccurrence, today: Cal
   const times = `${formatTime(meetup['start-time'])} – ${formatTime(meetup['end-time'])}`;
   return (
     `<li><span class="upcoming-when">${escapeHtml(when)}</span> <span class="upcoming-time">${escapeHtml(times)}</span><br />` +
-    `<a href="/meetups/#${encodeURIComponent(meetup.id)}">${escapeHtml(meetup.title)}</a> &middot; ${renderVenue(meetup.location)}${renderEvents(events)}</li>`
+    `<a href="/meetups/#${encodeURIComponent(meetup.id)}">${escapeHtml(meetup.title)}</a>${renderTentativeStamp(meetup, today)} &middot; ${renderVenue(meetup.location)}${renderEvents(events)}</li>`
   );
 }
 
-export function renderUpcoming(occurrences: MeetupOccurrence[], today: CalendarDate): string {
+/** `days` is the window the occurrences were drawn from; it is only shown when there are none. */
+export function renderUpcoming(occurrences: MeetupOccurrence[], today: CalendarDate, days: number): string {
   if (occurrences.length === 0) {
-    return NO_UPCOMING_HTML;
+    return `<p>No meetups are scheduled in the next ${days} days.</p>`;
   }
   return `<ul class="upcoming">${occurrences.map((occurrence) => renderOccurrence(occurrence, today)).join('')}</ul>`;
 }

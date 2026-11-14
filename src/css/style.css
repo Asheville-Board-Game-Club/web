@@ -400,3 +400,62 @@ main {
   height: auto;
   margin: 0.75rem 0 0.5rem 1rem;
 }
+
+/* A rubber-stamp look: double ink border, slight tilt, and multiply so the paper shows through like real ink. */
+.tentative {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+h2 .tentative {
+  margin-left: 0.75rem;
+}
+
+.tentative-stamp {
+  display: inline-block;
+  padding: 0.05em 0.45em;
+  border: 3px double var(--rust);
+  border-radius: 4px;
+  color: var(--rust);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  cursor: help;
+}
+
+h2 .tentative-stamp {
+  font-size: 0.9rem;
+}
+
+/* Starts right at the stamp's bottom edge (no gap) so the pointer can move onto the note's link without closing it. */
+.tentative-note {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  max-width: min(18rem, 80vw);
+  padding: 0.6rem 0.8rem;
+  background: #fff;
+  border: 1px solid var(--cream);
+  border-left: 4px solid var(--rust);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.tentative:hover .tentative-note,
+.tentative:focus-within .tentative-note {
+  display: block;
+}

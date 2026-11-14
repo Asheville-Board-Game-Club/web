@@ -1,6 +1,14 @@
 import type { LocalDateTime } from './asheville-clock';
-import { aMeetup, aSpecialEvent } from './test-meetup';
-import { remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
+import { aMeetup, aMeetupsData, aOnceMeetup, aSpecialEvent } from './test-meetup';
+import {
+  hasPassed,
+  isTentative,
+  occursOn,
+  upcomingDaysFrom,
+  remainingDates,
+  upcomingOccurrences,
+  type MeetupOccurrence,
+} from './upcoming-meetups';
 
 const WEDNESDAY_NOON: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
 
@@ -12,7 +20,7 @@ describe('upcomingOccurrences', () => {
   const weekly = aMeetup({ id: 'weekly', 'day-of-week': 'Wednesday', 'start-time': '17:30', 'end-time': '22:00' });
 
   it('lists a weekly meetup on each matching day within the window, starting today', () => {
-    expect(summarize(upcomingOccurrences([weekly], WEDNESDAY_NOON, 30))).toEqual([
+    expect(summarize(upcomingOccurrences(aMeetupsData([weekly]), WEDNESDAY_NOON, 30))).toEqual([
       '2026-10-07 weekly',
       '2026-10-14 weekly',
       '2026-10-21 weekly',
@@ -22,33 +30,33 @@ describe('upcomingOccurrences', () => {
   });
 
   it('ends the window the day before today plus the number of days', () => {
-    expect(summarize(upcomingOccurrences([weekly], WEDNESDAY_NOON, 7))).toEqual(['2026-10-07 weekly']);
-    expect(summarize(upcomingOccurrences([weekly], WEDNESDAY_NOON, 8))).toEqual(['2026-10-07 weekly', '2026-10-14 weekly']);
+    expect(summarize(upcomingOccurrences(aMeetupsData([weekly]), WEDNESDAY_NOON, 7))).toEqual(['2026-10-07 weekly']);
+    expect(summarize(upcomingOccurrences(aMeetupsData([weekly]), WEDNESDAY_NOON, 8))).toEqual(['2026-10-07 weekly', '2026-10-14 weekly']);
   });
 
   it("keeps today's meetup until its end time", () => {
     const now: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 21 * 60 + 59 };
 
-    expect(summarize(upcomingOccurrences([weekly], now, 8))[0]).toBe('2026-10-07 weekly');
+    expect(summarize(upcomingOccurrences(aMeetupsData([weekly]), now, 8))[0]).toBe('2026-10-07 weekly');
   });
 
   it("drops today's meetup once its end time arrives", () => {
     const now: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 22 * 60 };
 
-    expect(summarize(upcomingOccurrences([weekly], now, 8))).toEqual(['2026-10-14 weekly']);
+    expect(summarize(upcomingOccurrences(aMeetupsData([weekly]), now, 8))).toEqual(['2026-10-14 weekly']);
   });
 
   it('only drops meetups that are today', () => {
     const saturday = aMeetup({ id: 'saturday', 'day-of-week': 'Saturday', 'end-time': '11:00' });
 
-    expect(summarize(upcomingOccurrences([saturday], WEDNESDAY_NOON, 7))).toEqual(['2026-10-10 saturday']);
+    expect(summarize(upcomingOccurrences(aMeetupsData([saturday]), WEDNESDAY_NOON, 7))).toEqual(['2026-10-10 saturday']);
   });
 
   it('orders meetups from several schedules by date, then start time', () => {
     const evening = aMeetup({ id: 'evening', 'day-of-week': 'Saturday', 'start-time': '18:00', 'end-time': '21:00' });
     const morning = aMeetup({ id: 'morning', 'day-of-week': 'Saturday', 'start-time': '9:00', 'end-time': '12:00' });
 
-    expect(summarize(upcomingOccurrences([evening, weekly, morning], WEDNESDAY_NOON, 8))).toEqual([
+    expect(summarize(upcomingOccurrences(aMeetupsData([evening, weekly, morning]), WEDNESDAY_NOON, 8))).toEqual([
       '2026-10-07 weekly',
       '2026-10-10 morning',
       '2026-10-10 evening',
@@ -59,15 +67,13 @@ describe('upcomingOccurrences', () => {
   it('returns nothing when no meetup falls in the window', () => {
     const friday = aMeetup({ 'day-of-week': 'Friday' });
 
-    expect(upcomingOccurrences([friday], WEDNESDAY_NOON, 2)).toEqual([]);
+    expect(upcomingOccurrences(aMeetupsData([friday]), WEDNESDAY_NOON, 2)).toEqual([]);
   });
 
   it('attaches the special events on each date, and none to other dates', () => {
     const costumes = aSpecialEvent({ name: 'Costumes', dates: ['2026-10-14', '2026-10-28'] });
     const auction = aSpecialEvent({ name: 'Auction', dates: ['2026-10-28'] });
-    const meetup = aMeetup({ 'special-events': [costumes, auction] });
-
-    const occurrences = upcomingOccurrences([meetup], WEDNESDAY_NOON, 22);
+    const occurrences = upcomingOccurrences(aMeetupsData([weekly], [costumes, auction]), WEDNESDAY_NOON, 22);
 
     expect(occurrences.map(({ date, events }) => `${date} ${events.map((event) => event.name).join(',')}`)).toEqual([
       '2026-10-07 ',
@@ -77,8 +83,70 @@ describe('upcomingOccurrences', () => {
     ]);
   });
 
-  it('attaches no events to a meetup without special events', () => {
-    expect(upcomingOccurrences([weekly], WEDNESDAY_NOON, 1)[0]?.events).toEqual([]);
+  it('attaches no events when there are no special events', () => {
+    expect(upcomingOccurrences(aMeetupsData([weekly]), WEDNESDAY_NOON, 1)[0]?.events).toEqual([]);
+  });
+});
+
+describe('upcomingDaysFrom', () => {
+  it.each([
+    ['?days=90', 90],
+    ['?days=1', 1],
+    ['?days=365', 365],
+    ['?other=1&days=7', 7],
+  ])('uses the days parameter in %j', (search, expected) => {
+    expect(upcomingDaysFrom(search)).toBe(expected);
+  });
+
+  it.each(['', '?days=', '?days=0', '?days=-5', '?days=366', '?days=2.5', '?days=ninety'])('uses the default 30 for %j', (search) => {
+    expect(upcomingDaysFrom(search)).toBe(30);
+  });
+});
+
+describe('occursOn', () => {
+  it("is true only on the weekly meetup's day of the week", () => {
+    const meetup = aMeetup({ 'day-of-week': 'Wednesday' });
+
+    expect(occursOn(meetup, '2026-10-14')).toBe(true);
+    expect(occursOn(meetup, '2026-10-15')).toBe(false);
+  });
+
+  it("is true only on a one-off meetup's date", () => {
+    const meetup = aOnceMeetup({ date: '2026-12-12' });
+
+    expect(occursOn(meetup, '2026-12-12')).toBe(true);
+    expect(occursOn(meetup, '2026-12-19')).toBe(false);
+  });
+});
+
+describe('isTentative', () => {
+  const meetup = aOnceMeetup({ 'tentative-until': '2026-12-27' });
+
+  it('is true on days before the tentative-until date', () => {
+    expect(isTentative(meetup, '2026-12-26')).toBe(true);
+  });
+
+  it('is false from the tentative-until date on', () => {
+    expect(isTentative(meetup, '2026-12-27')).toBe(false);
+    expect(isTentative(meetup, '2026-12-28')).toBe(false);
+  });
+
+  it('is false for a meetup without a tentative-until date', () => {
+    expect(isTentative(aOnceMeetup(), '2026-01-01')).toBe(false);
+  });
+});
+
+describe('hasPassed', () => {
+  const gameDay = aOnceMeetup({ date: '2026-12-12', 'end-time': '18:00' });
+
+  it('is false for a one-off meetup until it ends, and true after', () => {
+    expect(hasPassed(gameDay, { date: '2026-12-12', minutesSinceMidnight: 18 * 60 - 1 })).toBe(false);
+    expect(hasPassed(gameDay, { date: '2026-12-12', minutesSinceMidnight: 18 * 60 })).toBe(true);
+    expect(hasPassed(gameDay, { date: '2026-12-13', minutesSinceMidnight: 0 })).toBe(true);
+  });
+
+  it('is never true for a weekly meetup', () => {
+    expect(hasPassed(aMeetup(), { date: '2030-01-01', minutesSinceMidnight: 23 * 60 })).toBe(false);
   });
 });
 
@@ -89,6 +157,12 @@ describe('remainingDates', () => {
     const event = aSpecialEvent({ dates: ['2026-10-28', '2026-09-30', '2026-10-14'] });
 
     expect(remainingDates(event, meetup, WEDNESDAY_NOON)).toEqual(['2026-10-14', '2026-10-28']);
+  });
+
+  it('drops dates the meetup does not occur on', () => {
+    const event = aSpecialEvent({ dates: ['2026-10-14', '2026-10-17'] });
+
+    expect(remainingDates(event, aMeetup({ 'day-of-week': 'Wednesday' }), WEDNESDAY_NOON)).toEqual(['2026-10-14']);
   });
 
   it("keeps today's date until the meetup ends", () => {

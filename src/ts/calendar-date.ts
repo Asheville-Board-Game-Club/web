@@ -24,3 +24,8 @@ export function dayOfWeek(date: CalendarDate): DayOfWeek {
 export function formatShortDate(date: CalendarDate): string {
   return toUtcMidnight(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
+
+/** e.g. "Saturday, December 12" */
+export function formatLongDate(date: CalendarDate): string {
+  return toUtcMidnight(date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+}

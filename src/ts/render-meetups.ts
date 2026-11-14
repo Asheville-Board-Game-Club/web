@@ -1,9 +1,9 @@
 import type { LocalDateTime } from './asheville-clock';
-import { formatShortDate } from './calendar-date';
-import type { MapImage, Meetup, MeetupLocation, SpecialEvent } from './meetup';
+import { formatLongDate, formatShortDate, type CalendarDate } from './calendar-date';
+import type { MapImage, Meetup, MeetupLocation, MeetupsData, SpecialEvent } from './meetup';
 import { specialEventId } from './special-event-id';
 import { formatTime } from './time-of-day';
-import { remainingDates } from './upcoming-meetups';
+import { hasPassed, isTentative, remainingDates } from './upcoming-meetups';
 
 // Enough for element text and double-quoted attributes, which is all this file produces.
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '"': '&quot;' };
@@ -13,8 +13,23 @@ export function escapeHtml(text: string): string {
   return text.replace(/[&<"]/g, (character) => HTML_ESCAPES[character] ?? character);
 }
 
+const NEWSLETTER_SIGNUP_URL = '/newsletter/signup/';
+
+// AIDEV-NOTE: The note opens on hover and on focus (CSS :focus-within), so taps and keyboards reach it, and its link.
+/** A Tentative stamp with an explanatory note, after a leading space, while the meetup is still tentative; otherwise nothing. */
+export function renderTentativeStamp(meetup: Meetup, today: CalendarDate): string {
+  if (!isTentative(meetup, today)) {
+    return '';
+  }
+  const note =
+    `This meetup is subject to being rescheduled. It should be confirmed by ${escapeHtml(formatLongDate(meetup['tentative-until']))}. ` +
+    `Join our <a href="${NEWSLETTER_SIGNUP_URL}">mailing list</a> to keep up to date.`;
+  return ` <span class="tentative"><span class="tentative-stamp" tabindex="0">Tentative</span><span class="tentative-note">${note}</span></span>`;
+}
+
 export function describeSchedule(meetup: Meetup): string {
-  return `Every ${meetup['day-of-week']}, ${formatTime(meetup['start-time'])} to ${formatTime(meetup['end-time'])}`;
+  const when = meetup.frequency === 'once' ? formatLongDate(meetup.date) : `Every ${meetup['day-of-week']}`;
+  return `${when}, ${formatTime(meetup['start-time'])} to ${formatTime(meetup['end-time'])}`;
 }
 
 export function renderVenue(location: MeetupLocation): string {
@@ -65,30 +80,32 @@ function renderSpecialEvent(meetup: Meetup, event: SpecialEvent, dates: string[]
   );
 }
 
-function renderSpecialEvents(meetup: Meetup, now: LocalDateTime): string {
-  const upcoming = (meetup['special-events'] ?? [])
-    .map((event) => ({ event, dates: remainingDates(event, meetup, now) }))
-    .filter(({ dates }) => dates.length > 0);
+function renderSpecialEvents(meetup: Meetup, events: SpecialEvent[], now: LocalDateTime): string {
+  const upcoming = events.map((event) => ({ event, dates: remainingDates(event, meetup, now) })).filter(({ dates }) => dates.length > 0);
   if (upcoming.length === 0) {
     return '';
   }
   return `<h3>Upcoming special events</h3>${upcoming.map(({ event, dates }) => renderSpecialEvent(meetup, event, dates)).join('')}`;
 }
 
-export function renderMeetupCard(meetup: Meetup, now: LocalDateTime): string {
+/** The card shows the upcoming dates of each event that fall on this meetup; `events` may include others. */
+export function renderMeetupCard(meetup: Meetup, events: SpecialEvent[], now: LocalDateTime): string {
   const { location } = meetup;
   const map = location['map-image'] ? renderMap(location['map-image'], location['map-url']) : '';
   return (
     `<section class="card" id="${escapeHtml(meetup.id)}">` +
-    `<h2>${escapeHtml(meetup.title)}</h2>` +
+    `<h2>${escapeHtml(meetup.title)}${renderTentativeStamp(meetup, now.date)}</h2>` +
     `<p><strong>${escapeHtml(describeSchedule(meetup))}</strong></p>` +
     `<div class="location">${renderAddress(location)}${map}</div>` +
     renderNotes(meetup.notes) +
-    renderSpecialEvents(meetup, now) +
+    renderSpecialEvents(meetup, events, now) +
     `</section>`
   );
 }
 
-export function renderMeetups(meetups: Meetup[], now: LocalDateTime): string {
-  return meetups.map((meetup) => renderMeetupCard(meetup, now)).join('');
+export function renderMeetups(data: MeetupsData, now: LocalDateTime): string {
+  return data.meetups
+    .filter((meetup) => !hasPassed(meetup, now))
+    .map((meetup) => renderMeetupCard(meetup, data['special-events'], now))
+    .join('');
 }

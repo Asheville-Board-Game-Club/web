@@ -1,9 +1,17 @@
 import type { LocalDateTime } from './asheville-clock';
 import { addDays, dayOfWeek, type CalendarDate } from './calendar-date';
-import type { Meetup, SpecialEvent } from './meetup';
+import type { Meetup, MeetupsData, SpecialEvent } from './meetup';
 import { minutesSinceMidnight } from './time-of-day';
 
 export const UPCOMING_DAYS = 30;
+const MAX_UPCOMING_DAYS = 365;
+
+/** The `days` query parameter (e.g. "?days=90") when it is a whole number from 1 to 365; otherwise UPCOMING_DAYS. */
+export function upcomingDaysFrom(search: string): number {
+  // A missing parameter becomes Number(null), which is 0 and so falls back to the default.
+  const days = Number(new URLSearchParams(search).get('days'));
+  return Number.isInteger(days) && days >= 1 && days <= MAX_UPCOMING_DAYS ? days : UPCOMING_DAYS;
+}
 
 export interface MeetupOccurrence {
   meetup: Meetup;
@@ -16,18 +24,33 @@ function hasEnded(meetup: Meetup, date: CalendarDate, now: LocalDateTime): boole
   return date < now.date || (date === now.date && minutesSinceMidnight(meetup['end-time']) <= now.minutesSinceMidnight);
 }
 
-function eventsOn(meetup: Meetup, date: CalendarDate): SpecialEvent[] {
-  return (meetup['special-events'] ?? []).filter((event) => event.dates.includes(date));
+export function occursOn(meetup: Meetup, date: CalendarDate): boolean {
+  return meetup.frequency === 'once' ? meetup.date === date : meetup['day-of-week'] === dayOfWeek(date);
+}
+
+export function isTentative(meetup: Meetup, today: CalendarDate): meetup is Meetup & { 'tentative-until': CalendarDate } {
+  const until = meetup['tentative-until'];
+  return until !== undefined && today < until;
+}
+
+/** True once a one-off meetup has ended; a weekly meetup never passes. */
+export function hasPassed(meetup: Meetup, now: LocalDateTime): boolean {
+  return meetup.frequency === 'once' && hasEnded(meetup, meetup.date, now);
+}
+
+// The validator guarantees each event date has exactly one meetup, so an event on the date belongs to it.
+function eventsOn(events: SpecialEvent[], date: CalendarDate): SpecialEvent[] {
+  return events.filter((event) => event.dates.includes(date));
 }
 
 /** Meetups from today through the next `days` days, soonest first; today's drop off once they end. */
-export function upcomingOccurrences(meetups: Meetup[], now: LocalDateTime, days: number): MeetupOccurrence[] {
+export function upcomingOccurrences(data: MeetupsData, now: LocalDateTime, days: number): MeetupOccurrence[] {
   const occurrences: MeetupOccurrence[] = [];
   for (let offset = 0; offset < days; offset++) {
     const date = addDays(now.date, offset);
-    for (const meetup of meetups) {
-      if (meetup['day-of-week'] === dayOfWeek(date)) {
-        occurrences.push({ meetup, date, events: eventsOn(meetup, date) });
+    for (const meetup of data.meetups) {
+      if (occursOn(meetup, date)) {
+        occurrences.push({ meetup, date, events: eventsOn(data['special-events'], date) });
       }
     }
   }
@@ -36,7 +59,7 @@ export function upcomingOccurrences(meetups: Meetup[], now: LocalDateTime, days:
     .sort((a, b) => a.date.localeCompare(b.date) || minutesSinceMidnight(a.meetup['start-time']) - minutesSinceMidnight(b.meetup['start-time']));
 }
 
-/** The event's dates that haven't ended yet, soonest first; today's stays until the meetup ends. */
+/** The event's dates at this meetup that haven't ended yet, soonest first; today's stays until the meetup ends. */
 export function remainingDates(event: SpecialEvent, meetup: Meetup, now: LocalDateTime): CalendarDate[] {
-  return event.dates.filter((date) => !hasEnded(meetup, date, now)).sort();
+  return event.dates.filter((date) => occursOn(meetup, date) && !hasEnded(meetup, date, now)).sort();
 }

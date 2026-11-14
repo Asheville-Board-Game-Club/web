@@ -17,12 +17,11 @@ Goal: let 2–3 less technical editors change meetups and special events without
 - History retention: 60 days, via an R2 lifecycle rule.
 - Venue map: editor uploads a map image with alt text and attribution; without one, the card shows the map link.
 - Schedules: weekly on a day, monthly on the nth weekday (e.g. first Saturday, last Friday), and one-off dates.
-- Special-event dates must be dates the meetup actually occurs (generalizes today's weekday rule).
+- Special events are top-level and attach by date; each event date must be a date exactly one meetup occurs.
 
 ## Work
 
-- Extend the data model and validator for the new schedule kinds; update occurrence and schedule-description logic.
-- Generalize the special-event date rule to "is an occurrence of the meetup".
+- Add the monthly (nth weekday) schedule kind to the data model, validator, occurrence, and schedule-description logic.
 - Create the R2 bucket, history lifecycle rule, and Access policy.
 - Close the side doors to `/admin`: enable Access on (or disable) the workers.dev and preview URLs.
 - Add a Worker script (`main` in `wrangler.jsonc`) to serve the API routes; today the Worker serves static assets only.

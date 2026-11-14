@@ -1,7 +1,8 @@
-import { DAYS_OF_WEEK, dayOfWeek } from './calendar-date';
-import type { Meetup } from './meetup';
-import { specialEventId } from './special-event-id';
+import { DAYS_OF_WEEK } from './calendar-date';
+import type { MeetupsData } from './meetup';
+import { specialEventSlug } from './special-event-id';
 import { minutesSinceMidnight } from './time-of-day';
+import { occursOn } from './upcoming-meetups';
 
 // AIDEV-NOTE: Run against src/data/meetups.json by meetups-data.test.ts, which `yarn build` runs before Eleventy,
 // so a bad hand edit fails the Cloudflare deploy. Keep these rules in step with meetup.ts.
@@ -17,7 +18,6 @@ const text = rule((value) => typeof value === 'string' && value.trim() !== '', '
 const webUrl = rule((value) => typeof value === 'string' && /^https?:\/\/\S+$/.test(value), 'must be an http:// or https:// URL');
 const sitePath = rule((value) => typeof value === 'string' && /^\/\S+$/.test(value), 'must be a site path starting with /');
 const time = rule((value) => typeof value === 'string' && /^([01]?\d|2[0-3]):[0-5]\d$/.test(value), 'must be a 24-hour time like "17:30"');
-const boolean = rule((value) => typeof value === 'boolean', 'must be true or false');
 // The id becomes an HTML id and a link anchor (/meetups/#id).
 const id = rule((value) => typeof value === 'string' && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value), 'must be lowercase letters, digits, and dashes');
 
@@ -38,6 +38,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function fieldPath(path: string, key: string): string {
+  return path === '' ? key : `${path}.${key}`;
+}
+
 function object(required: Record<string, Check>, optional: Record<string, Check> = {}): Check {
   return (value, path) => {
     if (!isPlainObject(value)) {
@@ -46,13 +50,13 @@ function object(required: Record<string, Check>, optional: Record<string, Check>
     const known = { ...required, ...optional };
     const unknownFields = Object.keys(value)
       .filter((key) => !(key in known))
-      .map((key) => `${path}.${key} is not a known field`);
+      .map((key) => `${fieldPath(path, key)} is not a known field`);
     const missingFields = Object.keys(required)
       .filter((key) => !(key in value))
-      .map((key) => `${path}.${key} is required`);
+      .map((key) => `${fieldPath(path, key)} is required`);
     const fieldProblems = Object.entries(known)
       .filter(([key]) => key in value)
-      .flatMap(([key, check]) => check(value[key], `${path}.${key}`));
+      .flatMap(([key, check]) => check(value[key], fieldPath(path, key)));
     return [...unknownFields, ...missingFields, ...fieldProblems];
   };
 }
@@ -78,26 +82,32 @@ const specialEvent = object(
   { image: object({ src: sitePath, alt: text }), 'background-color': hexColor, 'text-color': hexColor },
 );
 
-const meetup = object(
-  {
-    id,
-    title: text,
-    recurring: boolean,
-    frequency: oneOf(['weekly']),
-    'day-of-week': oneOf(DAYS_OF_WEEK),
-    'start-time': time,
-    'end-time': time,
-    location,
-    notes: arrayOf(text),
-  },
-  { 'special-events': arrayOf(specialEvent) },
-);
+const FREQUENCIES = ['weekly', 'once'];
 
-function crossFieldProblems(meetups: Meetup[]): string[] {
+const meetupDetails = {
+  id,
+  title: text,
+  frequency: oneOf(FREQUENCIES),
+  'start-time': time,
+  'end-time': time,
+  location,
+  notes: arrayOf(text),
+};
+
+const optionalMeetupDetails = { 'tentative-until': calendarDate };
+
+const weeklyMeetup = object({ ...meetupDetails, 'day-of-week': oneOf(DAYS_OF_WEEK) }, optionalMeetupDetails);
+const onceMeetup = object({ ...meetupDetails, date: calendarDate }, optionalMeetupDetails);
+
+// The frequency picks which fields the rest of the meetup needs; anything but "once" is checked as weekly.
+const meetup: Check = (value, path) => (isPlainObject(value) && value.frequency === 'once' ? onceMeetup : weeklyMeetup)(value, path);
+
+const meetupsData = object({ meetups: arrayOf(meetup), 'special-events': arrayOf(specialEvent) });
+
+function meetupProblems(data: MeetupsData): string[] {
   const problems: string[] = [];
   const seenIds = new Set<string>();
-  const seenEventIds = new Set<string>();
-  meetups.forEach((entry, index) => {
+  data.meetups.forEach((entry, index) => {
     if (seenIds.has(entry.id)) {
       problems.push(`meetups[${index}].id "${entry.id}" is used by more than one meetup`);
     }
@@ -105,17 +115,27 @@ function crossFieldProblems(meetups: Meetup[]): string[] {
     if (minutesSinceMidnight(entry['end-time']) <= minutesSinceMidnight(entry['start-time'])) {
       problems.push(`meetups[${index}].end-time must be after start-time (meetups can't run past midnight)`);
     }
-    entry['special-events']?.forEach((event, eventIndex) => {
-      const eventId = specialEventId(entry, event);
-      if (seenEventIds.has(eventId)) {
-        problems.push(`meetups[${index}].special-events[${eventIndex}].name gives the same link (#${eventId}) as another special event`);
+  });
+  return problems;
+}
+
+// AIDEV-NOTE: Events attach to meetups by date, so each date must pick out exactly one meetup.
+function specialEventProblems(data: MeetupsData): string[] {
+  const problems: string[] = [];
+  const seenSlugs = new Set<string>();
+  data['special-events'].forEach((event, index) => {
+    const slug = specialEventSlug(event);
+    if (seenSlugs.has(slug)) {
+      problems.push(`special-events[${index}].name gives the same link (${slug}) as another special event`);
+    }
+    seenSlugs.add(slug);
+    event.dates.forEach((date) => {
+      const meetupCount = data.meetups.filter((entry) => occursOn(entry, date)).length;
+      if (meetupCount === 0) {
+        problems.push(`special-events[${index}].dates has ${date}, when no meetup occurs`);
+      } else if (meetupCount > 1) {
+        problems.push(`special-events[${index}].dates has ${date}, when more than one meetup occurs`);
       }
-      seenEventIds.add(eventId);
-      event.dates
-        .filter((date) => dayOfWeek(date) !== entry['day-of-week'])
-        .forEach((date) => {
-          problems.push(`meetups[${index}].special-events[${eventIndex}].dates has ${date}, which is not a ${entry['day-of-week']}`);
-        });
     });
   });
   return problems;
@@ -123,7 +143,14 @@ function crossFieldProblems(meetups: Meetup[]): string[] {
 
 /** Every problem found in the meetups data; empty when it is valid. */
 export function validateMeetups(data: unknown): string[] {
-  const structural = arrayOf(meetup)(data, 'meetups');
+  if (!isPlainObject(data)) {
+    return ['The data must be an object with "meetups" and "special-events"'];
+  }
+  const structural = meetupsData(data, '');
   // Cross-field checks rely on the shape being right, so they only run once it is.
-  return structural.length > 0 ? structural : crossFieldProblems(data as Meetup[]);
+  if (structural.length > 0) {
+    return structural;
+  }
+  const valid = data as unknown as MeetupsData;
+  return [...meetupProblems(valid), ...specialEventProblems(valid)];
 }

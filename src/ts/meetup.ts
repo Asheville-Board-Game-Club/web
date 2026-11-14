@@ -27,7 +27,7 @@ export interface EventImage {
 
 export interface SpecialEvent {
   name: string;
-  /** "YYYY-MM-DD"; each must fall on the meetup's day of the week. */
+  /** "YYYY-MM-DD"; each must be a date exactly one meetup occurs on, which is where the event shows. */
   dates: string[];
   description: string;
   image?: EventImage;
@@ -37,18 +37,34 @@ export interface SpecialEvent {
   'text-color'?: string;
 }
 
-export interface Meetup {
+interface MeetupDetails {
   id: string;
   title: string;
-  recurring: boolean;
-  // AIDEV-NOTE: Only weekly meetups exist so far; widen this union (and describeSchedule) when that changes.
-  frequency: 'weekly';
-  'day-of-week': DayOfWeek;
   /** 24-hour "HH:MM" */
   'start-time': string;
   /** 24-hour "HH:MM" */
   'end-time': string;
   location: MeetupLocation;
   notes: string[];
-  'special-events'?: SpecialEvent[];
+  /** "YYYY-MM-DD"; the meetup is marked tentative on days before this one. */
+  'tentative-until'?: string;
+}
+
+export interface WeeklyMeetup extends MeetupDetails {
+  frequency: 'weekly';
+  'day-of-week': DayOfWeek;
+}
+
+export interface OnceMeetup extends MeetupDetails {
+  frequency: 'once';
+  /** "YYYY-MM-DD" */
+  date: string;
+}
+
+// AIDEV-NOTE: A new schedule kind also needs occursOn, hasPassed, describeSchedule, and the validator updated.
+export type Meetup = WeeklyMeetup | OnceMeetup;
+
+export interface MeetupsData {
+  meetups: Meetup[];
+  'special-events': SpecialEvent[];
 }

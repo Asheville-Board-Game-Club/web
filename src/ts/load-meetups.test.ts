@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
-import type { Meetup } from './meetup';
+import type { MeetupsData } from './meetup';
 import { LOAD_ERROR_HTML, loadMeetups, MEETUPS_URL } from './load-meetups';
-import { aMeetup } from './test-meetup';
+import { aMeetup, aMeetupsData, aSpecialEvent } from './test-meetup';
 
 function aResponse(ok: boolean, body: unknown): Response {
   return { ok, json: () => Promise.resolve(body) } as Response;
@@ -9,7 +9,7 @@ function aResponse(ok: boolean, body: unknown): Response {
 
 describe('loadMeetups', () => {
   const fetchFn = jest.fn<Promise<Response>, Parameters<typeof fetch>>();
-  const render = jest.fn<string, [Meetup[]]>();
+  const render = jest.fn<string, [MeetupsData]>();
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -21,18 +21,18 @@ describe('loadMeetups', () => {
   });
 
   it('fetches the meetups data and shows what the renderer makes of it', async () => {
-    const meetups: Meetup[] = [aMeetup({ id: 'first' }), aMeetup({ id: 'second' })];
-    fetchFn.mockResolvedValue(aResponse(true, meetups));
+    const data = aMeetupsData([aMeetup({ id: 'first' }), aMeetup({ id: 'second' })], [aSpecialEvent()]);
+    fetchFn.mockResolvedValue(aResponse(true, data));
 
     await loadMeetups(container, fetchFn, render);
 
     expect(fetchFn).toHaveBeenCalledWith(MEETUPS_URL);
-    expect(render).toHaveBeenCalledWith(meetups);
+    expect(render).toHaveBeenCalledWith(data);
     expect(container.innerHTML).toBe('<p>rendered</p>');
   });
 
   it('shows an error when the server responds with a failure', async () => {
-    fetchFn.mockResolvedValue(aResponse(false, [aMeetup()]));
+    fetchFn.mockResolvedValue(aResponse(false, aMeetupsData([aMeetup()])));
 
     await loadMeetups(container, fetchFn, render);
 
@@ -49,7 +49,7 @@ describe('loadMeetups', () => {
   });
 
   it('shows an error when the data cannot be rendered', async () => {
-    fetchFn.mockResolvedValue(aResponse(true, [aMeetup()]));
+    fetchFn.mockResolvedValue(aResponse(true, aMeetupsData([aMeetup()])));
     render.mockImplementation(() => {
       throw new Error('Invalid time');
     });
