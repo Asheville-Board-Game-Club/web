@@ -17,7 +17,12 @@ function hasEnded(meetup: Meetup, date: CalendarDate, now: LocalDateTime): boole
 }
 
 export function occursOn(meetup: Meetup, date: CalendarDate): boolean {
-  return meetup['day-of-week'] === dayOfWeek(date);
+  return meetup.frequency === 'once' ? meetup.date === date : meetup['day-of-week'] === dayOfWeek(date);
+}
+
+/** True once a one-off meetup has ended; a weekly meetup never passes. */
+export function hasPassed(meetup: Meetup, now: LocalDateTime): boolean {
+  return meetup.frequency === 'once' && hasEnded(meetup, meetup.date, now);
 }
 
 // The validator guarantees each event date has exactly one meetup, so an event on the date belongs to it.

@@ -3,7 +3,6 @@
     {
       "id": "weekly",
       "title": "Weekly meetup",
-      "recurring": true,
       "frequency": "weekly",
       "day-of-week": "Wednesday",
       "start-time": "17:30",

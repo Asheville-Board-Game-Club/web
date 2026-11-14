@@ -1,5 +1,5 @@
 import type { Meetup } from './meetup';
-import { aMeetup, aSpecialEvent } from './test-meetup';
+import { aMeetup, aOnceMeetup, aSpecialEvent } from './test-meetup';
 import { validateMeetups } from './validate-meetups';
 
 function withField(field: string, value: unknown): Record<string, unknown> {
@@ -30,7 +30,7 @@ function without(meetup: Meetup, field: keyof Meetup): Record<string, unknown> {
 
 describe('validateMeetups', () => {
   it('accepts valid meetups', () => {
-    expect(validateMeetups(dataWith([aMeetup({ id: 'weekly' }), aMeetup({ id: 'saturday-games' })]))).toEqual([]);
+    expect(validateMeetups(dataWith([aMeetup({ id: 'weekly' }), aOnceMeetup({ id: 'game-day' })]))).toEqual([]);
   });
 
   it('accepts a location without its optional fields', () => {
@@ -81,8 +81,7 @@ describe('validateMeetups', () => {
     ['id', 'weekly-', 'must be lowercase letters, digits, and dashes'],
     ['id', 'Weekly', 'must be lowercase letters, digits, and dashes'],
     ['title', '  ', 'must be non-empty text'],
-    ['recurring', 'true', 'must be true or false'],
-    ['frequency', 'monthly', 'must be one of: weekly'],
+    ['frequency', 'monthly', 'must be one of: weekly, once'],
     ['day-of-week', 'wednesday', 'must be one of: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday'],
     ['start-time', '5:30pm', 'must be a 24-hour time like "17:30"'],
     ['end-time', '24:00', 'must be a 24-hour time like "17:30"'],
@@ -93,6 +92,17 @@ describe('validateMeetups', () => {
     ['notes', 'Bring a game.', 'must be a list'],
   ])('rejects %s of %j', (field, value, problem) => {
     expect(validateMeetups(dataWith([withField(field, value)]))).toEqual([`meetups[0].${field} ${problem}`]);
+  });
+
+  it('checks a one-off meetup for a date instead of a day of the week', () => {
+    expect(validateMeetups(dataWith([{ ...aMeetup(), frequency: 'once' }]))).toEqual([
+      'meetups[0].day-of-week is not a known field',
+      'meetups[0].date is required',
+    ]);
+  });
+
+  it.each(['12/12/2026', '2026-12-32'])('rejects the one-off meetup date %j', (date) => {
+    expect(validateMeetups(dataWith([aOnceMeetup({ date })]))).toEqual(['meetups[0].date must be a real date like "2026-10-28"']);
   });
 
   it('accepts single-digit hours and the ends of the day', () => {

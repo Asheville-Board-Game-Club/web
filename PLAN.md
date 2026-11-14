@@ -21,7 +21,7 @@ Goal: let 2–3 less technical editors change meetups and special events without
 
 ## Work
 
-- Extend the data model and validator for the new schedule kinds; update occurrence and schedule-description logic.
+- Add the monthly (nth weekday) schedule kind to the data model, validator, occurrence, and schedule-description logic.
 - Create the R2 bucket, history lifecycle rule, and Access policy.
 - Close the side doors to `/admin`: enable Access on (or disable) the workers.dev and preview URLs.
 - Add a Worker script (`main` in `wrangler.jsonc`) to serve the API routes; today the Worker serves static assets only.

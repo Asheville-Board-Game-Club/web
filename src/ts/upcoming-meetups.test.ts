@@ -1,6 +1,6 @@
 import type { LocalDateTime } from './asheville-clock';
-import { aMeetup, aMeetupsData, aSpecialEvent } from './test-meetup';
-import { occursOn, remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
+import { aMeetup, aMeetupsData, aOnceMeetup, aSpecialEvent } from './test-meetup';
+import { hasPassed, occursOn, remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
 
 const WEDNESDAY_NOON: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
 
@@ -86,6 +86,27 @@ describe('occursOn', () => {
 
     expect(occursOn(meetup, '2026-10-14')).toBe(true);
     expect(occursOn(meetup, '2026-10-15')).toBe(false);
+  });
+
+  it("is true only on a one-off meetup's date", () => {
+    const meetup = aOnceMeetup({ date: '2026-12-12' });
+
+    expect(occursOn(meetup, '2026-12-12')).toBe(true);
+    expect(occursOn(meetup, '2026-12-19')).toBe(false);
+  });
+});
+
+describe('hasPassed', () => {
+  const gameDay = aOnceMeetup({ date: '2026-12-12', 'end-time': '18:00' });
+
+  it('is false for a one-off meetup until it ends, and true after', () => {
+    expect(hasPassed(gameDay, { date: '2026-12-12', minutesSinceMidnight: 18 * 60 - 1 })).toBe(false);
+    expect(hasPassed(gameDay, { date: '2026-12-12', minutesSinceMidnight: 18 * 60 })).toBe(true);
+    expect(hasPassed(gameDay, { date: '2026-12-13', minutesSinceMidnight: 0 })).toBe(true);
+  });
+
+  it('is never true for a weekly meetup', () => {
+    expect(hasPassed(aMeetup(), { date: '2030-01-01', minutesSinceMidnight: 23 * 60 })).toBe(false);
   });
 });
 

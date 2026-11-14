@@ -1,4 +1,4 @@
-import { addDays, dayOfWeek, formatShortDate } from './calendar-date';
+import { addDays, dayOfWeek, formatLongDate, formatShortDate } from './calendar-date';
 
 describe('addDays', () => {
   it.each([
@@ -28,5 +28,14 @@ describe('formatShortDate', () => {
     ['2026-11-14', 'Sat, Nov 14'],
   ])('formats %s as %s', (date, expected) => {
     expect(formatShortDate(date)).toBe(expected);
+  });
+});
+
+describe('formatLongDate', () => {
+  it.each([
+    ['2026-10-07', 'Wednesday, October 7'],
+    ['2026-12-12', 'Saturday, December 12'],
+  ])('formats %s as %s', (date, expected) => {
+    expect(formatLongDate(date)).toBe(expected);
   });
 });

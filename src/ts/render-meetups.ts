@@ -1,9 +1,9 @@
 import type { LocalDateTime } from './asheville-clock';
-import { formatShortDate } from './calendar-date';
+import { formatLongDate, formatShortDate } from './calendar-date';
 import type { MapImage, Meetup, MeetupLocation, MeetupsData, SpecialEvent } from './meetup';
 import { specialEventId } from './special-event-id';
 import { formatTime } from './time-of-day';
-import { remainingDates } from './upcoming-meetups';
+import { hasPassed, remainingDates } from './upcoming-meetups';
 
 // Enough for element text and double-quoted attributes, which is all this file produces.
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '"': '&quot;' };
@@ -14,7 +14,8 @@ export function escapeHtml(text: string): string {
 }
 
 export function describeSchedule(meetup: Meetup): string {
-  return `Every ${meetup['day-of-week']}, ${formatTime(meetup['start-time'])} to ${formatTime(meetup['end-time'])}`;
+  const when = meetup.frequency === 'once' ? formatLongDate(meetup.date) : `Every ${meetup['day-of-week']}`;
+  return `${when}, ${formatTime(meetup['start-time'])} to ${formatTime(meetup['end-time'])}`;
 }
 
 export function renderVenue(location: MeetupLocation): string {
@@ -89,5 +90,8 @@ export function renderMeetupCard(meetup: Meetup, events: SpecialEvent[], now: Lo
 }
 
 export function renderMeetups(data: MeetupsData, now: LocalDateTime): string {
-  return data.meetups.map((meetup) => renderMeetupCard(meetup, data['special-events'], now)).join('');
+  return data.meetups
+    .filter((meetup) => !hasPassed(meetup, now))
+    .map((meetup) => renderMeetupCard(meetup, data['special-events'], now))
+    .join('');
 }

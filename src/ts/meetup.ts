@@ -37,13 +37,9 @@ export interface SpecialEvent {
   'text-color'?: string;
 }
 
-export interface Meetup {
+interface MeetupDetails {
   id: string;
   title: string;
-  recurring: boolean;
-  // AIDEV-NOTE: Only weekly meetups exist so far; widen this union (and describeSchedule) when that changes.
-  frequency: 'weekly';
-  'day-of-week': DayOfWeek;
   /** 24-hour "HH:MM" */
   'start-time': string;
   /** 24-hour "HH:MM" */
@@ -51,6 +47,20 @@ export interface Meetup {
   location: MeetupLocation;
   notes: string[];
 }
+
+export interface WeeklyMeetup extends MeetupDetails {
+  frequency: 'weekly';
+  'day-of-week': DayOfWeek;
+}
+
+export interface OnceMeetup extends MeetupDetails {
+  frequency: 'once';
+  /** "YYYY-MM-DD" */
+  date: string;
+}
+
+// AIDEV-NOTE: A new schedule kind also needs occursOn, hasPassed, describeSchedule, and the validator updated.
+export type Meetup = WeeklyMeetup | OnceMeetup;
 
 export interface MeetupsData {
   meetups: Meetup[];

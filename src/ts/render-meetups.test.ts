@@ -2,7 +2,7 @@
 import type { MeetupLocation } from './meetup';
 import type { LocalDateTime } from './asheville-clock';
 import { describeSchedule, renderMeetupCard, renderMeetups } from './render-meetups';
-import { aMeetup, aMeetupsData, aSpecialEvent } from './test-meetup';
+import { aMeetup, aMeetupsData, aOnceMeetup, aSpecialEvent } from './test-meetup';
 
 const NOW: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
 
@@ -22,6 +22,12 @@ describe('describeSchedule', () => {
     const meetup = aMeetup({ 'day-of-week': 'Friday', 'start-time': '18:00', 'end-time': '21:45' });
 
     expect(describeSchedule(meetup)).toBe('Every Friday, 6:00\u00a0PM to 9:45\u00a0PM');
+  });
+
+  it("names a one-off meetup's date and its start and end times", () => {
+    const meetup = aOnceMeetup({ date: '2026-12-12', 'start-time': '13:00', 'end-time': '18:00' });
+
+    expect(describeSchedule(meetup)).toBe('Saturday, December 12, 1:00\u00a0PM to 6:00\u00a0PM');
   });
 });
 
@@ -183,6 +189,18 @@ describe('renderMeetups', () => {
     const cards = toElement(renderMeetups(data, NOW)).querySelectorAll('section.card');
 
     expect(Array.from(cards, (card) => card.id)).toEqual(['first', 'second']);
+  });
+
+  it('leaves out one-off meetups that have ended', () => {
+    const data = aMeetupsData([
+      aMeetup({ id: 'weekly' }),
+      aOnceMeetup({ id: 'past', date: '2026-10-03' }),
+      aOnceMeetup({ id: 'coming', date: '2026-10-10' }),
+    ]);
+
+    const cards = toElement(renderMeetups(data, NOW)).querySelectorAll('section.card');
+
+    expect(Array.from(cards, (card) => card.id)).toEqual(['weekly', 'coming']);
   });
 
   it('shows each special event in the card of the meetup it falls on', () => {

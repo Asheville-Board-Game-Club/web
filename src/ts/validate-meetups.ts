@@ -18,7 +18,6 @@ const text = rule((value) => typeof value === 'string' && value.trim() !== '', '
 const webUrl = rule((value) => typeof value === 'string' && /^https?:\/\/\S+$/.test(value), 'must be an http:// or https:// URL');
 const sitePath = rule((value) => typeof value === 'string' && /^\/\S+$/.test(value), 'must be a site path starting with /');
 const time = rule((value) => typeof value === 'string' && /^([01]?\d|2[0-3]):[0-5]\d$/.test(value), 'must be a 24-hour time like "17:30"');
-const boolean = rule((value) => typeof value === 'boolean', 'must be true or false');
 // The id becomes an HTML id and a link anchor (/meetups/#id).
 const id = rule((value) => typeof value === 'string' && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value), 'must be lowercase letters, digits, and dashes');
 
@@ -83,17 +82,23 @@ const specialEvent = object(
   { image: object({ src: sitePath, alt: text }), 'background-color': hexColor, 'text-color': hexColor },
 );
 
-const meetup = object({
+const FREQUENCIES = ['weekly', 'once'];
+
+const meetupDetails = {
   id,
   title: text,
-  recurring: boolean,
-  frequency: oneOf(['weekly']),
-  'day-of-week': oneOf(DAYS_OF_WEEK),
+  frequency: oneOf(FREQUENCIES),
   'start-time': time,
   'end-time': time,
   location,
   notes: arrayOf(text),
-});
+};
+
+const weeklyMeetup = object({ ...meetupDetails, 'day-of-week': oneOf(DAYS_OF_WEEK) });
+const onceMeetup = object({ ...meetupDetails, date: calendarDate });
+
+// The frequency picks which fields the rest of the meetup needs; anything but "once" is checked as weekly.
+const meetup: Check = (value, path) => (isPlainObject(value) && value.frequency === 'once' ? onceMeetup : weeklyMeetup)(value, path);
 
 const meetupsData = object({ meetups: arrayOf(meetup), 'special-events': arrayOf(specialEvent) });
 
