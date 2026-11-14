@@ -1,6 +1,14 @@
 import type { LocalDateTime } from './asheville-clock';
 import { aMeetup, aMeetupsData, aOnceMeetup, aSpecialEvent } from './test-meetup';
-import { hasPassed, isTentative, occursOn, remainingDates, upcomingOccurrences, type MeetupOccurrence } from './upcoming-meetups';
+import {
+  hasPassed,
+  isTentative,
+  occursOn,
+  upcomingDaysFrom,
+  remainingDates,
+  upcomingOccurrences,
+  type MeetupOccurrence,
+} from './upcoming-meetups';
 
 const WEDNESDAY_NOON: LocalDateTime = { date: '2026-10-07', minutesSinceMidnight: 12 * 60 };
 
@@ -77,6 +85,21 @@ describe('upcomingOccurrences', () => {
 
   it('attaches no events when there are no special events', () => {
     expect(upcomingOccurrences(aMeetupsData([weekly]), WEDNESDAY_NOON, 1)[0]?.events).toEqual([]);
+  });
+});
+
+describe('upcomingDaysFrom', () => {
+  it.each([
+    ['?days=90', 90],
+    ['?days=1', 1],
+    ['?days=365', 365],
+    ['?other=1&days=7', 7],
+  ])('uses the days parameter in %j', (search, expected) => {
+    expect(upcomingDaysFrom(search)).toBe(expected);
+  });
+
+  it.each(['', '?days=', '?days=0', '?days=-5', '?days=366', '?days=2.5', '?days=ninety'])('uses the default 30 for %j', (search) => {
+    expect(upcomingDaysFrom(search)).toBe(30);
   });
 });
 

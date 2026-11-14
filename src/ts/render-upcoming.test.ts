@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { NO_UPCOMING_HTML, renderUpcoming } from './render-upcoming';
+import { renderUpcoming } from './render-upcoming';
 import { aMeetup, aSpecialEvent } from './test-meetup';
 
 function toElement(html: string): HTMLElement {
@@ -12,7 +12,7 @@ describe('renderUpcoming', () => {
   const meetup = aMeetup({ id: 'weekly', title: 'Weekly meetup', 'start-time': '17:30', 'end-time': '22:00' });
 
   it('lists each occurrence with its date, times, meetup link, and venue', () => {
-    const items = toElement(renderUpcoming([{ meetup, date: '2026-10-14', events: [] }], '2026-10-07')).querySelectorAll('ul.upcoming > li');
+    const items = toElement(renderUpcoming([{ meetup, date: '2026-10-14', events: [] }], '2026-10-07', 30)).querySelectorAll('ul.upcoming > li');
 
     expect(items).toHaveLength(1);
     expect(items[0]?.querySelector('.upcoming-when')?.textContent).toBe('Wed, Oct 14');
@@ -27,15 +27,15 @@ describe('renderUpcoming', () => {
   it('stamps a tentative meetup after its link, judged by today', () => {
     const tentative = aMeetup({ 'tentative-until': '2026-10-08' });
 
-    const stamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-07'));
-    const unstamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-08'));
+    const stamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-07', 30));
+    const unstamped = toElement(renderUpcoming([{ meetup: tentative, date: '2026-10-14', events: [] }], '2026-10-08', 30));
 
     expect(stamped.querySelector('a + .tentative-stamp')?.textContent).toBe('Tentative');
     expect(unstamped.querySelector('.tentative-stamp')).toBeNull();
   });
 
   it("labels today's occurrence", () => {
-    const html = renderUpcoming([{ meetup, date: '2026-10-07', events: [] }], '2026-10-07');
+    const html = renderUpcoming([{ meetup, date: '2026-10-07', events: [] }], '2026-10-07', 30);
 
     expect(toElement(html).querySelector('.upcoming-when')?.textContent).toBe('Today (Wed, Oct 7)');
   });
@@ -47,6 +47,7 @@ describe('renderUpcoming', () => {
         { meetup, date: '2026-10-14', events: [] },
       ],
       '2026-10-07',
+      30,
     );
 
     const dates = Array.from(toElement(html).querySelectorAll('.upcoming-when'), (when) => when.textContent);
@@ -54,7 +55,7 @@ describe('renderUpcoming', () => {
   });
 
   it('shows markup in the meetup title as text', () => {
-    const html = renderUpcoming([{ meetup: aMeetup({ title: '<b>Games</b>' }), date: '2026-10-14', events: [] }], '2026-10-07');
+    const html = renderUpcoming([{ meetup: aMeetup({ title: '<b>Games</b>' }), date: '2026-10-14', events: [] }], '2026-10-07', 30);
 
     expect(toElement(html).querySelector('b')).toBeNull();
   });
@@ -65,7 +66,7 @@ describe('renderUpcoming', () => {
       aSpecialEvent({ name: 'Auction', image: undefined, 'background-color': undefined, 'text-color': undefined }),
     ];
 
-    const items = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelectorAll(
+    const items = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07', 30)).querySelectorAll(
       'li ul.upcoming-events > li',
     );
 
@@ -77,7 +78,9 @@ describe('renderUpcoming', () => {
   it("shows each special event's description when it is opened", () => {
     const events = [aSpecialEvent({ description: 'Costumes welcome.' })];
 
-    const details = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('.upcoming-events details');
+    const details = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07', 30)).querySelector(
+      '.upcoming-events details',
+    );
 
     expect(details?.hasAttribute('open')).toBe(false);
     expect(details?.querySelector('summary + p')?.textContent).toBe('Costumes welcome.');
@@ -90,6 +93,7 @@ describe('renderUpcoming', () => {
         { meetup, date: '2026-10-28', events: [aSpecialEvent({ name: 'Costumes' }), aSpecialEvent({ name: 'Raffle' })] },
       ],
       '2026-10-07',
+      30,
     );
 
     const names = Array.from(toElement(html).querySelectorAll('.upcoming-events details'), (details) => details.getAttribute('name'));
@@ -101,7 +105,9 @@ describe('renderUpcoming', () => {
   it("shows the event's image after its name, in place of the star", () => {
     const events = [aSpecialEvent({ name: 'Costumes', image: { src: '/img/events/witch.webp', alt: 'A witch' } })];
 
-    const summary = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07')).querySelector('.upcoming-events summary');
+    const summary = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07', 30)).querySelector(
+      '.upcoming-events summary',
+    );
 
     expect(summary?.textContent).toBe('Costumes ');
     expect(summary?.lastElementChild?.getAttribute('src')).toBe('/img/events/witch.webp');
@@ -109,20 +115,22 @@ describe('renderUpcoming', () => {
   });
 
   it('omits the events list when an occurrence has none', () => {
-    expect(toElement(renderUpcoming([{ meetup, date: '2026-10-14', events: [] }], '2026-10-07')).querySelector('.upcoming-events')).toBeNull();
+    expect(
+      toElement(renderUpcoming([{ meetup, date: '2026-10-14', events: [] }], '2026-10-07', 30)).querySelector('.upcoming-events'),
+    ).toBeNull();
   });
 
   it('shows markup in an event name and description as text', () => {
     const events = [aSpecialEvent({ name: '<b>Costumes</b>', description: '<i>Spooky</i>' })];
 
-    const element = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07'));
+    const element = toElement(renderUpcoming([{ meetup, date: '2026-10-28', events }], '2026-10-07', 30));
 
     expect(element.querySelector('b')).toBeNull();
     expect(element.querySelector('i')).toBeNull();
   });
 
   it('says so when nothing is coming up', () => {
-    expect(renderUpcoming([], '2026-10-07')).toBe(NO_UPCOMING_HTML);
-    expect(NO_UPCOMING_HTML).toContain('next 30 days');
+    expect(renderUpcoming([], '2026-10-07', 30)).toBe('<p>No meetups are scheduled in the next 30 days.</p>');
+    expect(renderUpcoming([], '2026-10-07', 90)).toBe('<p>No meetups are scheduled in the next 90 days.</p>');
   });
 });

@@ -4,6 +4,14 @@ import type { Meetup, MeetupsData, SpecialEvent } from './meetup';
 import { minutesSinceMidnight } from './time-of-day';
 
 export const UPCOMING_DAYS = 30;
+const MAX_UPCOMING_DAYS = 365;
+
+/** The `days` query parameter (e.g. "?days=90") when it is a whole number from 1 to 365; otherwise UPCOMING_DAYS. */
+export function upcomingDaysFrom(search: string): number {
+  // A missing parameter becomes Number(null), which is 0 and so falls back to the default.
+  const days = Number(new URLSearchParams(search).get('days'));
+  return Number.isInteger(days) && days >= 1 && days <= MAX_UPCOMING_DAYS ? days : UPCOMING_DAYS;
+}
 
 export interface MeetupOccurrence {
   meetup: Meetup;
